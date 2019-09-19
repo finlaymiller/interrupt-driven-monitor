@@ -34,6 +34,9 @@ static void NmiSR(void);
 static void FaultISR(void);
 static void IntDefaultHandler(void);
 
+// UART and SYSTICK interrupt handlers
+extern void UART0_IntHandler(void);
+
 //*****************************************************************************
 //
 // External declaration for the reset handler that is to be called when the
@@ -88,7 +91,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // GPIO Port C
     IntDefaultHandler,                      // GPIO Port D
     IntDefaultHandler,                      // GPIO Port E
-    IntDefaultHandler,                      // UART0 Rx and Tx * Change *
+    UART0_IntHandler,                       // UART0 Rx and Tx * Change *
     IntDefaultHandler,                      // UART1 Rx and Tx
     IntDefaultHandler,                      // SSI0 Rx and Tx
     IntDefaultHandler,                      // I2C0 Master and Slave

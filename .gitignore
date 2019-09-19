@@ -1,1 +1,7 @@
+# files created by Code Composer Studio
 /Debug/
+.settings/
+targetConfigs/
+.ccsproject
+.cproject
+.project
