@@ -34,7 +34,7 @@ static void NmiSR(void);
 static void FaultISR(void);
 static void IntDefaultHandler(void);
 
-// UART and SYSTICK interrupt handlers
+// UART interrupt handler
 extern void UART0_IntHandler(void);
 
 //*****************************************************************************
