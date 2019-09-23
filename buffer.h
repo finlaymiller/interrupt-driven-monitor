@@ -8,8 +8,14 @@
 #ifndef BUFFER_H_
 #define BUFFER_H_
 
-#define MAX_BUFFER_SIZE 20
+#define MAX_BUFFER_LEN 20
 #define getName(var_name) #var_name
+
+typedef struct buffer
+{
+    char contents[MAX_BUFFER_LEN];
+    int size;
+} buffer;
 
 typedef struct buffer *buffer_ptr;
 

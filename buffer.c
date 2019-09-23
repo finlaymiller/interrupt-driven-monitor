@@ -9,23 +9,17 @@
 #include <stdlib.h>
 #include "buffer.h"
 
-typedef struct buffer
-{
-    int contents[MAX_BUFFER_SIZE];
-    int size;
-} buffer;
-
 void bufferReset(buffer_ptr buff)
 {
 	// clear contents of buffer
     int i;
-	for(i = 0; i < MAX_BUFFER_SIZE; i++)
+	for(i = 0; i < MAX_BUFFER_LEN; i++)
 	{
 		buff->contents[i] = 0;
 	}
 
 	// check to make sure it worked
-	for(i = 0; i < MAX_BUFFER_SIZE; i++)
+	for(i = 0; i < MAX_BUFFER_LEN; i++)
 	{
 		int buff_val = buff->contents[i];
 		if (buff_val != 0)
@@ -38,7 +32,7 @@ void bufferReset(buffer_ptr buff)
 buffer_ptr bufferInit(void)
 {
 	// allocate required memory
-    buffer_ptr buff = (buffer_ptr)malloc(sizeof(buffer));
+    buffer_ptr buff = (buffer_ptr)malloc(sizeof(buffer));   // Do i need to cast this?
 	// clear buffer contents
 	bufferReset(buff);
 
@@ -54,7 +48,7 @@ void bufferFree(buffer_ptr buff)
 
 int isBufferFull(buffer_ptr buff)
 {
-	return buff->size >= MAX_BUFFER_SIZE;
+	return buff->size >= MAX_BUFFER_LEN;
 }
 
 int isBufferEmpty(buffer_ptr buff)
@@ -107,10 +101,10 @@ void bufferPrint(buffer_ptr buff)
 	printf("Printing contents of buffer");
 
 	int i;
-	for(i = 0; i < MAX_BUFFER_SIZE; i++)
+	for(i = 0; i < MAX_BUFFER_LEN; i++)
 	{
 		printf("\n\t------------\n");
-		printf("%d\t%d", i, buff->contents[i]);
+		printf("%d\t%c", i, buff->contents[i]);
 	}
 	
 	printf("\n\t------------");
@@ -139,7 +133,7 @@ void bufferTest(void)
     for(i = 0; i < 4; i++)
     {
         ret_val = bufferTake(bptr);
-        printf("Received val %d from buffer.\n", ret_val);
+        printf("Received val %c from buffer.\n", ret_val);
     }
 
     bufferPrint(bptr);

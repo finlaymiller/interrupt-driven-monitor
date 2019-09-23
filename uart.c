@@ -6,7 +6,6 @@
  * Summer 2017
  */
 
-#include <stdio.h>
 #include "uart.h"
 
 void UART0_Init(void)
@@ -75,23 +74,4 @@ void InterruptMasterEnable(void)
 {
     /* enable CPU interrupts */
     __asm(" cpsie   i");
-}
-
-void main (void)
-{
-    /* Initialize UART */
-    UART0_Init();           // Initialize UART0
-    InterruptEnable(INT_VEC_UART0);       // Enable UART0 interrupts
-    UART0_IntEnable(UART_INT_RX | UART_INT_TX); // Enable Receive and Transmit interrupts
-    InterruptMasterEnable();      // Enable Master (CPU) Interrupts
-
-    while(1)
-    {
-        /* Wait for input data */
-        GotData = FALSE;
-        while (!GotData) ;
-        /* Input data - xmit directly */
-        UART0_DR_R = Data;
-    }
-
 }
