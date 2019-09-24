@@ -42,23 +42,3 @@ void timePrint(time_ptr time)
 	printf("\nPrinting time:\t\t");
 	printf("HH:MM:SS.T ---> %02d:%02d:%02d.%d", time->hour, time->minute, time->second, time->tenth);
 }
-
-int timeHandler(char *arg)
-{
-	if(arg == NULL)
-	{
-		// TODO: print current time
-	}
-	else
-	{
-		//TODO: update SysTick
-		// isolate time components
-		char **time_to_set = strToArray(arg, ":.", NUM_TIME_ELEMS);
-		
-		// setup time struct
-		time_ptr t_ptr = timeInit();
-		timeSet(t_ptr, time_to_set);
-		timePrint(t_ptr);
-	}
-	return 0;
-}

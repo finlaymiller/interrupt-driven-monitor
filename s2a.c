@@ -10,7 +10,8 @@ char **strToArray(char *string, const char *delim, int num_tok)
 	while(token_array[i] != NULL)
 		token_array[++i] = strtok(NULL,delim);	// add rest of pointers
 
-	// now we have an array of strings...locally. How do we get it back to the mainline?
+	// now we have an array of strings...locally.
+	// How do we get it back to the mainline?
 	char **tok_ptr = token_array;
 	char **string_array = malloc(sizeof(char *) * (num_tok + 1));
 	int j = 0;

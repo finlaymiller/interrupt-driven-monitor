@@ -36,6 +36,4 @@ int monthCheck(char *month);
 date_ptr dateInit(void);
 void dateSet(date_ptr date, char **date_str);
 void datePrint(date_ptr date);
-int dateHandler(char *arg);
-
 #endif /* DATE_H_ */

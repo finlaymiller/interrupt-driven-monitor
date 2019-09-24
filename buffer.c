@@ -62,7 +62,7 @@ void bufferGive(buffer_ptr buff, int data)
 	if (isBufferFull(buff))
 	{
 		printf("Tried to write to full buffer %s.\n", getName(buff));
-		exit(-1);
+		exit(1);
 	}
 	
 	// place data on next available buffer slot

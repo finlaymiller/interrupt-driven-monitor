@@ -34,15 +34,6 @@ void UART0_Init(void)
     wait = 0; // wait; give UART time to enable itself.
 }
 
-void InterruptEnable(unsigned long InterruptIndex)
-{
-    /* Indicate to CPU which device is to interrupt */
-    if(InterruptIndex < 32)
-        NVIC_EN0_R = 1 << InterruptIndex;       // Enable the interrupt in the EN0 Register
-    else
-        NVIC_EN1_R = 1 << (InterruptIndex - 32);    // Enable the interrupt in the EN1 Register
-}
-
 void UART0_IntEnable(unsigned long flags)
 {
     /* Set specified bits for interrupt */
@@ -70,8 +61,9 @@ void UART0_IntHandler(void)
     }
 }
 
-void InterruptMasterEnable(void)
+/* change */
+void UART_Echo(char data)
 {
-    /* enable CPU interrupts */
-    __asm(" cpsie   i");
+    /* Echo character on UART */
+    UART0_DR_R = data;
 }

@@ -25,4 +25,7 @@
 #define MONTH_LEN 3
 #define NUM_DATE_ELEMS 3
 
+void InterruptEnable(unsigned long InterruptIndex);
+void InterruptMasterEnable(void);
+
 #endif /* MAIN_H_ */

@@ -66,23 +66,3 @@ void datePrint(date_ptr date)
 	printf("\nPrinting date:\t\t");
 	printf("DD-MM-YYYY ---> %02d:%s:%d", date->day, date->month, date->year);
 }
-
-int dateHandler(char *arg)
-{
-	if(arg == NULL)
-	{
-		// TODO: print current date
-	}
-	else
-	{
-		//TODO: update SysTick
-		// isolate date components
-		char **date_to_set = strToArray(arg, ":.", NUM_DATE_ELEMS);
-		
-		// setup date struct
-		date_ptr t_ptr = dateInit();
-		dateSet(t_ptr, date_to_set);
-		datePrint(t_ptr);
-	}
-	return 0;
-}

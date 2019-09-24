@@ -66,9 +66,8 @@ volatile int GotData;   /* T|F - Data available from UART */
 
 // Functions
 void UART0_Init(void);
-void InterruptEnable(unsigned long InterruptIndex);
 void UART0_IntEnable(unsigned long flags);
 void UART0_IntHandler(void);
-void InterruptMasterEnable(void);
+void UART_Echo(char data);
 
 #endif /* UART_H_ */
