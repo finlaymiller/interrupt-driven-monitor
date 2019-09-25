@@ -46,30 +46,20 @@ void initCommandString(void)
 
 void echoRX(char data)
 {
-    if(data != KEY_EXIT)
+    //if(data != KEY_EXIT)
         UART_Echo(data);
 }
 
-void readRX(buffer_ptr buff)
+void pollQ(int q_index)
 {
-    printf("Buffer holds ");
-    int i;
-    for(i = 0; i < MAX_BUFFER_LEN; i++)
-    {
-        printf("%c", buff->contents[i]);
-    }
+    //if(!isQEmpty(q_index))
+        handleRX(q_index);
 }
 
-void pollRX(buffer_ptr buff_rx)
+void handleRX(int q_index)
 {
-    if(!isBufferEmpty(buff_rx))
-        handleRX(buff_rx);
-}
-
-void handleRX(buffer_ptr buff_rx)
-{
-    char data = bufferTake(buff_rx);
-    //checkChar(data);
+    char data = deQ(UART_RX);
+    checkChar(data);
     echoRX(data);
 
 }
@@ -164,4 +154,19 @@ void timeHandler(char *arg)
 void alarmHandler(char *arg)
 {
 
+}
+
+/* Derek's Functions */
+void fill_tx_queue(char *message, char length)
+{
+    char i;
+    /* Fill the transmit queue with all but last character */
+    for(i=0; i<length; i++){
+        enQ(UART_TX, message[i]);
+    }
+
+    if(!get_tx_queue_busy()){
+        /* If UART not busy, force character into UART and set to busy */
+        UART_force_start();
+    }
 }

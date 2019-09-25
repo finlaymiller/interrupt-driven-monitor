@@ -63,13 +63,15 @@
 #define FALSE   0
 
 // Globals
-volatile char Data;     /* Input data from UART receive */
+volatile char data;     /* Input data from UART receive */
 volatile int GotData;   /* T|F - Data available from UART */
 
 // Functions
 void UART0_Init(void);
 void UART0_IntEnable(unsigned long flags);
 void UART0_IntHandler(void);
-void UART_Echo(char data);
+
+void UART_force_start(void);
+void UART_Echo(char);
 
 #endif /* UART_H_ */

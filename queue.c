@@ -7,22 +7,39 @@
 
 #include <queue.h>
 
+char tx_busy;
 
-q_ptr initQ(void)
+void set_tx_queue_busy(char busy)
 {
-	// allocate memory space
-	q_ptr queue = malloc(sizeof(q_struct));
+    tx_busy = busy;
+}
 
+char get_tx_queue_busy(void)
+{
+    return tx_busy;
+}
+
+void initQTable(int num_queues)
+{
+    int i;
+    for(i = 0; i < num_queues; i++)
+    {
+    	q_table[i] = malloc(sizeof(q_ptr));
+    	initQ(q_table[i]);
+    }
+}
+
+void initQ(q_ptr queue)
+{
+	queue = malloc(sizeof(q_struct));
+
+	/*
 	int i;
 	for(i = 0; i < MAX_Q_LEN; i++)
-	{
 		queue->contents[i] = 0;
-	}
-
+		*/
 	queue->head = 0;
 	queue->tail = 0;
-
-	return queue;
 }
 
 q_ptr getQ(int q_index)
@@ -39,25 +56,26 @@ void freeQ(int q_index)
 int isQEmpty(int q_index)
 {
 	q_ptr queue = getQ(q_index);
+
 	return queue->head == queue->tail;
 }
 
-int isQFull(int q_index)
+int isQFull(int q_index, int head_pos)
 {
 	q_ptr queue = getQ(q_index);
-	int new_head = (queue->head + 1) & (MAX_Q_LEN - 1);
-	return new_head == queue->tail;
+
+	return head_pos != queue->tail;
 }
 
 void enQ(int q_index, char data)
 {
 	q_ptr queue = getQ(q_index);
-	int err = 1;
+    int new_head = (queue->head + 1) & (MAX_Q_LEN - 1);
 
-	if(!isQFull(q_index))
+	if(!isQFull(q_index, new_head))
 	{
 		queue->contents[queue->head] = data;
-		queue->head = (queue->head + 1) & (MAX_Q_LEN - 1);
+		queue->head = new_head;
 	}
 }
 
@@ -66,10 +84,15 @@ char deQ(int q_index)
 	q_ptr queue = getQ(q_index);
 	char data = 0;
 
-	if(!isQEmpty(q_index))
+	if(isQEmpty(q_index) && (q_index == UART_TX))
 	{
-		data = queue->contents[queue->tail];
+	    tx_busy = 0;
 	}
+	else
+    {
+	    data = queue->contents[queue->tail];
+	    queue->tail = (queue->tail + 1) & (MAX_Q_LEN - 1);
+    }
 
 	return data;
 }

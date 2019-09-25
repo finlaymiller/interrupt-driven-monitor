@@ -40,11 +40,11 @@ extern arg_struct arg_table[NUM_ARGS];
 
 void initCommandTable(void);
 void initCommandString(void);
+void fill_tx_queue(char *, char);
 
 void echoRX(char);
-void readRX(buffer_ptr);
-void pollRX(buffer_ptr);
-void handleRX(buffer_ptr);
+void pollQ(int);
+void handleRX(int);
 void checkChar(char);
 void parseCommand(void);
 void dateHandler(char *);

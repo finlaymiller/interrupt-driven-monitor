@@ -1,7 +1,11 @@
-#include "main.h"
+/*
+ * main.c
+ *
+ *  Created on: Sep 19, 2019
+ *      Author: Finlay Miller
+ */
 
-buffer_ptr buffer_RX;
-buffer_ptr buffer_TX;
+#include "main.h"
 
 void InterruptEnable(unsigned long InterruptIndex)
 {
@@ -31,12 +35,12 @@ void main(void)
 
     initCommandTable();
     initCommandString();
+    initQTable(NUM_Q);
 
-    buffer_RX = bufferInit();
-    buffer_TX = bufferInit();
-
+    int i = 0;
     while(1)
     {
-        pollRX(buffer_RX);
+        pollQ(UART_RX);
+        i++;
     }
 }

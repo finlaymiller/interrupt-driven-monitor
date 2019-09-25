@@ -8,9 +8,6 @@
 
 #include "uart.h"
 
-extern buffer_ptr buffer_RX;
-extern buffer_ptr buffer_TX;
-
 void UART0_Init(void)
 {
     volatile int wait;
@@ -53,10 +50,10 @@ void UART0_IntHandler(void)
     {
         /* RECV done - clear interrupt and make char available to application */
         UART0_ICR_R |= UART_INT_RX;
-        Data = UART0_DR_R;
-        //GotData = TRUE;
+        data = UART0_DR_R;
+        GotData = TRUE;
 
-        bufferGive(buffer_RX, Data);
+        enQ(UART_RX, data);
     }
 
     if (UART0_MIS_R & UART_INT_TX)
@@ -64,11 +61,20 @@ void UART0_IntHandler(void)
         /* XMIT done - clear interrupt */
         UART0_ICR_R |= UART_INT_TX;
 
-        if(!isBufferEmpty(buffer_TX)) UART0_DR_R = bufferTake(buffer_TX);
+        if(get_tx_queue_busy())
+            UART0_DR_R = deQ(UART_TX);
     }
 }
 
-/* change */
+
+/* Derek's Functions */
+
+void UART_force_start(void)
+{
+    set_tx_queue_busy(1);
+    UART0_DR_R = deQ(UART_TX);
+}
+
 void UART_Echo(char data)
 {
     /* Echo character on UART */
