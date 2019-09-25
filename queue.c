@@ -1,5 +1,5 @@
 /*
- * queue.c
+ * queue->c
  *
  *  Created on: Sep 19, 2019
  *      Author: Finlay Miller
@@ -7,6 +7,7 @@
 
 #include <queue.h>
 
+/*
 char tx_busy;
 
 void set_tx_queue_busy(char busy)
@@ -18,78 +19,93 @@ char get_tx_queue_busy(void)
 {
     return tx_busy;
 }
+*/
 
+q_struct q_table[NUM_Q];
+
+/*
+ * Initializes array of queues filled with 0s
+ *
+ * @param num_queues: Number of queues to fill array with
+ * @return:	None
+ */
 void initQTable(int num_queues)
 {
     int i;
     for(i = 0; i < num_queues; i++)
     {
-    	q_table[i] = malloc(sizeof(q_ptr));
-    	initQ(q_table[i]);
+    	int j;
+    	for(j = 0; j < MAX_Q_LEN; j++)
+    		q_table[i].contents[j] = 0;
+    	q_table[i].head = 0;
+    	q_table[i].tail = 0;
     }
 }
 
-void initQ(q_ptr queue)
-{
-	queue = malloc(sizeof(q_struct));
-
-	/*
-	int i;
-	for(i = 0; i < MAX_Q_LEN; i++)
-		queue->contents[i] = 0;
-		*/
-	queue->head = 0;
-	queue->tail = 0;
-}
-
-q_ptr getQ(int q_index)
-{
-	return q_table[q_index];
-}
-
-void freeQ(int q_index)
-{
-	q_ptr queue = getQ(q_index);
-	free(queue);
-}
-
+/*
+ * Checks whether or not queue is empty.
+ *
+ * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * referred to by each position.
+ * @return: 1 if empty, 0 otherwise.
+ */
 int isQEmpty(int q_index)
 {
-	q_ptr queue = getQ(q_index);
+	q_struct *queue = &q_table[q_index];
 
 	return queue->head == queue->tail;
 }
 
-int isQFull(int q_index, int head_pos)
+/*
+ * Checks whether or not queue is full.
+ *
+ * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * referred to by each position.
+ * @param head_pos: next position the queue's head will move to
+ * @return: 1 if full, 0 otherwise.
+ */
+int isQFull(int q_index)
 {
-	q_ptr queue = getQ(q_index);
+	q_struct *queue = &q_table[q_index];
+	int next_head = (queue->head + 1) & (MAX_Q_LEN - 1);
 
-	return head_pos != queue->tail;
+	return next_head == queue->tail;
 }
 
+/*
+ * Adds value to next available place in queue, if space is available.
+ *
+ * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * referred to by each position.
+ * @param data: value to give to the queue->
+ * @return: None
+ */
 void enQ(int q_index, char data)
 {
-	q_ptr queue = getQ(q_index);
-    int new_head = (queue->head + 1) & (MAX_Q_LEN - 1);
+	q_struct *queue = &q_table[q_index];
+    int next_head = (queue->head + 1) & (MAX_Q_LEN - 1);
 
-	if(!isQFull(q_index, new_head))
+	if(!isQFull(q_index))
 	{
 		queue->contents[queue->head] = data;
-		queue->head = new_head;
+		queue->head = next_head;
 	}
 }
 
+/*
+ * Removes oldest value at the tail of the queue->
+ *
+ * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * referred to by each position.
+ * @return: Data from the tail of the queue->
+ */
 char deQ(int q_index)
 {
-	q_ptr queue = getQ(q_index);
+	q_struct *queue = &q_table[q_index];
 	char data = 0;
 
-	if(isQEmpty(q_index) && (q_index == UART_TX))
+	if(!isQEmpty(q_index))
 	{
-	    tx_busy = 0;
-	}
-	else
-    {
 	    data = queue->contents[queue->tail];
 	    queue->tail = (queue->tail + 1) & (MAX_Q_LEN - 1);
     }
@@ -97,10 +113,16 @@ char deQ(int q_index)
 	return data;
 }
 
-
+/*
+ * Prints contents of queue to console. Not for onboard use.
+ *
+ * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * referred to by each position.
+ * @return: None
+ */
 void printQ(int q_index)
 {
-	q_ptr queue = getQ(q_index);
+	q_struct *queue = &q_table[q_index];
 	printf("Printing contents of queue");
 
 	int i;

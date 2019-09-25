@@ -26,7 +26,7 @@
 #define MAX_NAME_LEN 6
 #define KEY_ENTER '\x0d'
 #define KEY_EXIT  '\e'
-#define KEY_BKSPC '\x7f'
+#define KEY_BKSPC '\x08'
 
 /* Globals */
 typedef struct arg

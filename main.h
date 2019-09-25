@@ -27,5 +27,6 @@
 
 void InterruptEnable(unsigned long InterruptIndex);
 void InterruptMasterEnable(void);
+void InterruptMasterDisable(void);
 
 #endif /* MAIN_H_ */

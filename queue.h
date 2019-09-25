@@ -25,20 +25,19 @@ typedef struct q_struct
   int tail;
 } q_struct;
 
-typedef q_struct *q_ptr;
-q_ptr q_table[NUM_Q];
-
 // declare queue-related functions
 void initQTable(int);
-void initQ(q_ptr);
+void initQ(q_struct);
 void freeQ(int);
 int isQEmpty(int);
-int isQFull(int, int);
+int isQFull(int);
 void enQ(int, char);
 char deQ(int);
 void printQ(int);
 
+/*
 void set_tx_queue_busy(char busy);
 char get_tx_queue_busy(void);
+*/
 
 #endif /* QUEUE_H_ */

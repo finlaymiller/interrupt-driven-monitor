@@ -62,10 +62,6 @@
 #define TRUE    1
 #define FALSE   0
 
-// Globals
-volatile char data;     /* Input data from UART receive */
-volatile int GotData;   /* T|F - Data available from UART */
-
 // Functions
 void UART0_Init(void);
 void UART0_IntEnable(unsigned long flags);

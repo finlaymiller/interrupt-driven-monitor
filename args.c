@@ -17,6 +17,7 @@ void dateHandler(char *arg);
 void timeHandler(char *arg);
 
 arg_struct arg_table[NUM_ARGS];
+extern volatile char data_rx;
 
 void initCommandTable(void)
 {
@@ -46,13 +47,13 @@ void initCommandString(void)
 
 void echoRX(char data)
 {
-    //if(data != KEY_EXIT)
+    if(data != KEY_EXIT)
         UART_Echo(data);
 }
 
 void pollQ(int q_index)
 {
-    //if(!isQEmpty(q_index))
+    if(!isQEmpty(q_index))
         handleRX(q_index);
 }
 
@@ -84,7 +85,7 @@ void checkChar(char data)
     }
     else if(data == KEY_ENTER)
     {
-    	parseCommand();
+    	//parseCommand();
     }
     else if (cmd_index < MAX_CMD_LEN)
     {
@@ -154,19 +155,4 @@ void timeHandler(char *arg)
 void alarmHandler(char *arg)
 {
 
-}
-
-/* Derek's Functions */
-void fill_tx_queue(char *message, char length)
-{
-    char i;
-    /* Fill the transmit queue with all but last character */
-    for(i=0; i<length; i++){
-        enQ(UART_TX, message[i]);
-    }
-
-    if(!get_tx_queue_busy()){
-        /* If UART not busy, force character into UART and set to busy */
-        UART_force_start();
-    }
 }

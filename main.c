@@ -7,6 +7,9 @@
 
 #include "main.h"
 
+extern volatile char data_rx;
+extern volatile int got_data;
+
 void InterruptEnable(unsigned long InterruptIndex)
 {
     /* Indicate to CPU which device is to interrupt */
@@ -23,6 +26,12 @@ void InterruptMasterEnable(void)
     __asm(" cpsie   i");
 }
 
+void InterruptMasterDisable(void)
+{
+	/* disable CPU interrupts */
+	    __asm(" cpsid   i");
+}
+
 
 void main(void)
 {
@@ -37,10 +46,11 @@ void main(void)
     initCommandString();
     initQTable(NUM_Q);
 
-    int i = 0;
+
     while(1)
     {
-        pollQ(UART_RX);
-        i++;
+    	got_data = FALSE;
+    	while(!got_data);
+    	pollQ(UART_RX);
     }
 }
