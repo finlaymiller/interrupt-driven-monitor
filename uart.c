@@ -8,6 +8,9 @@
 
 #include "uart.h"
 
+extern buffer_ptr buffer_RX;
+extern buffer_ptr buffer_TX;
+
 void UART0_Init(void)
 {
     volatile int wait;
@@ -51,13 +54,17 @@ void UART0_IntHandler(void)
         /* RECV done - clear interrupt and make char available to application */
         UART0_ICR_R |= UART_INT_RX;
         Data = UART0_DR_R;
-        GotData = TRUE;
+        //GotData = TRUE;
+
+        bufferGive(buffer_RX, Data);
     }
 
     if (UART0_MIS_R & UART_INT_TX)
     {
         /* XMIT done - clear interrupt */
         UART0_ICR_R |= UART_INT_TX;
+
+        if(!isBufferEmpty(buffer_TX)) UART0_DR_R = bufferTake(buffer_TX);
     }
 }
 

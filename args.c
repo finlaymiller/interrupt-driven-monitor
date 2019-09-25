@@ -69,7 +69,7 @@ void pollRX(buffer_ptr buff_rx)
 void handleRX(buffer_ptr buff_rx)
 {
     char data = bufferTake(buff_rx);
-    checkChar(data);
+    //checkChar(data);
     echoRX(data);
 
 }

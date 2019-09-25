@@ -13,8 +13,8 @@
 #include <strings.h>
 
 #include "args.h"
-#include "buffer.h"
 #include "date.h"
+#include "queue.h"
 #include "time.h"
 #include "s2a.h"
 #include "uart.h"

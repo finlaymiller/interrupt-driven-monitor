@@ -8,6 +8,8 @@
 #ifndef UART_H_
 #define UART_H_
 
+#include "queue.h"
+
 // UART0 & PORTA Registers
 #define GPIO_PORTA_AFSEL_R  (*((volatile unsigned long *)0x40058420))   // GPIOA Alternate Function Select Register
 #define GPIO_PORTA_DEN_R    (*((volatile unsigned long *)0x4005851C))   // GPIOA Digital Enable Register

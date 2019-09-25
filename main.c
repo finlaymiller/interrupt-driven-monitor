@@ -1,5 +1,8 @@
 #include "main.h"
 
+buffer_ptr buffer_RX;
+buffer_ptr buffer_TX;
+
 void InterruptEnable(unsigned long InterruptIndex)
 {
     /* Indicate to CPU which device is to interrupt */
@@ -16,7 +19,7 @@ void InterruptMasterEnable(void)
     __asm(" cpsie   i");
 }
 
-int main(void)
+void main(void)
 {
 
     /* Initialize UART */
@@ -28,17 +31,11 @@ int main(void)
     initCommandTable();
     initCommandString();
 
-    buffer_ptr buffer_RX = bufferInit();
-
-    printf("Print Test.");
+    buffer_RX = bufferInit();
+    buffer_TX = bufferInit();
 
     while(1)
     {
-    	/* Wait for input data */
-		GotData = FALSE;
-		while (!GotData) ;
         pollRX(buffer_RX);
     }
-
-    return 0;
 }
