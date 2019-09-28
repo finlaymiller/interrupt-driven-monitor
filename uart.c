@@ -71,7 +71,7 @@ void UART0_IntHandler(void)
 
 /* Derek's Functions */
 
-void UART_Echo(char data)
+void echo(char data)
 {
     /* Echo character on UART */
     UART0_DR_R = data;

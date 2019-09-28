@@ -19,7 +19,7 @@
 #include "s2a.h"
 #include "uart.h"
 
-#define NUM_ARGS 3
+#define NUM_CMDS 3
 #define MAX_ARG_LEN 20
 #define MAX_NAME_LEN 6
 #define MONTH_LEN 3

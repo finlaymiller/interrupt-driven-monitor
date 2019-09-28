@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "s2a.h"
+#include "args.h"
 
 #define NUM_TIME_ELEMS 4
 
@@ -24,10 +25,9 @@ typedef struct time_struct
     unsigned int tenth;
 } time_struct;
 
-typedef struct time_struct *time_ptr;
-
-time_ptr timeInit(void);
-void timeSet(time_ptr time, char **time_str);
+void timeHandler(char *);
+void timeInit(void);
+void timeSet(char **time_str);
 void timePrint(time_ptr time);
 
 #endif /* TIME_H_ */

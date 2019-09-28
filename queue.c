@@ -7,20 +7,6 @@
 
 #include <queue.h>
 
-/*
-char tx_busy;
-
-void set_tx_queue_busy(char busy)
-{
-    tx_busy = busy;
-}
-
-char get_tx_queue_busy(void)
-{
-    return tx_busy;
-}
-*/
-
 q_struct q_table[NUM_Q];
 
 /*
@@ -134,21 +120,3 @@ void printQ(int q_index)
 	
 	printf("\n\t------------\n");
 }
-
-/* Example usage */
-/*
-int main(void)
-{
-	int i;
-	for(i = 0; i < NUM_Q; i++)
-		q_table[i] = initQ();
-
-	enQ(0, 'a');
-	enQ(1, 'b');
-
-	printQ(0);
-	printQ(1);
-
-	return 0;
-}
-*/

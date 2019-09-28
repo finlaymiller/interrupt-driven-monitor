@@ -42,15 +42,16 @@ void main(void)
     UART0_IntEnable(UART_INT_RX | UART_INT_TX); // Enable Receive and Transmit interrupts
     InterruptMasterEnable();      // Enable Master (CPU) Interrupts
 
+    /* initialize tables */
     initCommandTable();
     initCommandString();
     initQTable(NUM_Q);
 
-
     while(1)
     {
     	got_data = FALSE;
-    	while(!got_data);
-    	pollQ(UART_RX);
+    	while(!got_data);	// wait until char is received
+    	handleQ(UART_RX);
+    	handleQ(UART_TX);
     }
 }

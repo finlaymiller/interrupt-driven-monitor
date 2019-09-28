@@ -8,47 +8,47 @@
 #ifndef ARGS_H_
 #define ARGS_H_
 
+/* default libraries */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
+/* my libraries */
 #include "alarm.h"
 #include "time.h"
 #include "date.h"
 #include "queue.h"
 #include "uart.h"
 
-
-/* required definitions */
-#define NUM_ARGS 3
-#define NUM_TOKS 2
-#define MAX_CMD_LEN 20
-#define MAX_NAME_LEN 6
+/* globals */
+#define NUM_CMDS 3			// number of supported commands
+#define NUM_TOKS 2			// number of accepted tokens per line
+#define MAX_CMD_LEN 20		// maximum length of accepted command. The max
+							// length of a VALID command is 16 characters
+#define MAX_NAME_LEN 6		// length of longest command "alarm" + 1 for '\0'
 #define KEY_ENTER '\x0d'
-#define KEY_EXIT  '\e'
+//#define KEY_EXIT  '\e'
 #define KEY_BKSPC '\x08'
 
-/* Globals */
-typedef struct arg
+/* command struct setup */
+typedef struct cmd
 {
-    char name[MAX_NAME_LEN];
-    int length;
-    void (*function)(char *);
-} arg_struct;
+    char name[MAX_NAME_LEN];	// actual name of command
+    int length;					// number of characters in command
+    void (*function)(char *);	// pointer to the handler for that command
+} cmd_struct;
 
-extern arg_struct arg_table[NUM_ARGS];
+extern cmd_struct cmd_table[NUM_CMDS];
 
+/* initialization functions */
 void initCommandTable(void);
 void initCommandString(void);
-void fill_tx_queue(char *, char);
 
-void echoRX(char);
-void pollQ(int);
-void handleRX(int);
+/* command parsing functions */
+void stringTX(char *, int);
+void handleBackspace(void);
+void handleChar(char);
+void handleQ(int);
 void checkChar(char);
 void parseCommand(void);
-void dateHandler(char *);
-void timeHandler(char *);
-void alarmHandler(char *);
 
 #endif /* ARGS_H_ */

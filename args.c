@@ -4,155 +4,128 @@
  *  Created on: Sep 21, 2019
  *      Author: Finlay Miller
  *
- *  TODO Handle special chars on input e.g. RETURN
  */
 
 #include "args.h"
 
-char cmd_rx[MAX_CMD_LEN];
-int cmd_index = 0;
+/* globals */
+char cmd_rx[MAX_CMD_LEN];	// command string received from UART
+int cmd_index = 0;			// number of characters in command string
 
-void alarmHandler(char *arg);
-void dateHandler(char *arg);
-void timeHandler(char *arg);
-
-arg_struct arg_table[NUM_ARGS];
+cmd_struct cmd_table[NUM_CMDS];
 extern volatile char data_rx;
 
+/*
+ * Creates a command table
+ *
+ * @param: None
+ * @return: None
+ */
 void initCommandTable(void)
 {
-    strcpy(arg_table[0].name, "date");
-    arg_table[0].length = 4;
-    arg_table[0].function = &dateHandler;
+    strcpy(cmd_table[0].name, "date");		// add support for accepting the
+    cmd_table[0].length = 4;				// date command
+    cmd_table[0].function = &dateHandler;
 
-    strcpy(arg_table[1].name, "time");
-    arg_table[1].length = 4;
-    arg_table[1].function = &timeHandler;
+    strcpy(cmd_table[1].name, "time");		// add support for accepting the
+    cmd_table[1].length = 4;				// time command
+    cmd_table[1].function = &timeHandler;
 
-    strcpy(arg_table[2].name, "alarm");
-    arg_table[2].length = 5;
-    arg_table[2].function = &alarmHandler;
+    strcpy(cmd_table[2].name, "alarm");		// add support for accepting the
+    cmd_table[2].length = 5;				// alarm command
+    cmd_table[2].function = &alarmHandler;
 }
 
+/*
+ * Initializes the command string to be full of null terminators
+ *
+ * @param: None
+ * @return: None
+ */
 void initCommandString(void)
 {
 	int i;
 	for (i = 0; i < cmd_index; i++)
-	{
-		cmd_rx[i] = 0;
-	}
+		cmd_rx[i] = '\0';
 
 	cmd_index = 0;
 }
 
-void echoRX(char data)
-{
-    if(data != KEY_EXIT)
-        UART_Echo(data);
-}
-
-void pollQ(int q_index)
-{
-    if(!isQEmpty(q_index))
-        handleRX(q_index);
-}
-
-void handleRX(int q_index)
-{
-    char data = deQ(UART_RX);
-    checkChar(data);
-    echoRX(data);
-
-}
-
 /*
- * IF char == backspace
- *      IF len(current_command) > 0
- *          current_command_index --
- *          current_command[current_command_index] = 0
- *      END IF
- *  ELSE IF char == enter
- *  	send newline char to UART
- *  	parse command
- *  ELSE
- *  	currend_command[current_command_index++] = char
+ * Handler which is called when a character is received. Pulls a char off the
+ * indicated queue (SHOULD always be UART_RX), sends it to the checker
+ * functions, then sends it to be echoed.
+ *
+ * @param: q_index->index position in the queue table of the queue that
+ * 					received the character
+ * 	@returns: None
  */
+void handleQ(int q_index)
+{
+    char data = deQ(q_index);	// dequeue char from buffer
+    if(q_index == UART_RX)		// check char if it's just been received
+    	checkChar(data);
+    echo(data);					// echo it
+}
+
 void checkChar(char data)
 {
-    if((data == KEY_BKSPC) && (cmd_index > 0))
+    if((data == KEY_BKSPC) && (cmd_index > 0))	// delete last char
     {
-    	cmd_rx[--cmd_index] = 0;
+    	handleBackspace();
     }
-    else if(data == KEY_ENTER)
+    else if(data == KEY_ENTER)					// start processing command
     {
-    	//parseCommand();
+    	parseCommand();
     }
     else if (cmd_index < MAX_CMD_LEN)
     {
-    	cmd_rx[cmd_index++] = tolower(data);
+    	handleChar(data);								// add char to command string
     }
-    else printf("How did I get here?");
+    else
+    {
+    	// character entered when command string is at max length.
+    	// backspace then add last char to end of cmd
+    	handleBackspace();
+    	handleChar(data);
+    }
+}
+
+void handleBackspace(void)
+{
+	cmd_rx[--cmd_index] = 0;
+}
+
+void handleChar(char data)
+{
+	cmd_rx[cmd_index++] = tolower(data);
 }
 
 void parseCommand(void)
 {
-	char **command_tokens = strToArray(cmd_rx, " ", 2);
-	int i;
+	char *command_tokens[NUM_TOKS];
+	int i = 0;
 
-	for(i = 0; i < NUM_ARGS; i++)
+	command_tokens[0] = strtok(cmd_rx, " ");
+	command_tokens[1] = strtok(NULL, " ");
+
+	for(i = 0; i < NUM_CMDS; i++)
 	{
-		if(!strncmp(command_tokens[0], arg_table[i].name, arg_table[i].length))
+		if(!strncmp(command_tokens[0], cmd_table[i].name, cmd_table[i].length))
 		{
-			arg_table[i].function(command_tokens[1]);
+			cmd_table[i].function(command_tokens[1]);
 			break;
 		}
 	}
 
 	initCommandString();
+	stringTX(NEW_LINE, 2);
 }
 
-
-/* Command Handlers */
-
-void dateHandler(char *arg)
+void stringTX(char *string, int len)
 {
-    if(arg == NULL)
-    {
-        // TODO: print current date
-    }
-    else
-    {
-        //TODO: update SysTick
-        // isolate date components
-        char **date_to_set = strToArray(arg, "-", NUM_DATE_ELEMS);
+	int i;
 
-        // setup date structure
-        date_ptr d_ptr = dateInit();
-        dateSet(d_ptr, date_to_set);
-        datePrint(d_ptr);
-    }
-}
-
-void timeHandler(char *arg)
-{
-    if(arg == NULL)
-    {
-        // TODO: print current time
-    }
-    else
-    {
-        //TODO: update SysTick
-        // isolate time components
-        char **time_to_set = strToArray(arg, ":.", NUM_TIME_ELEMS);
-
-        // setup time structure
-        time_ptr t_ptr = timeInit();
-        timeSet(t_ptr, time_to_set);
-        timePrint(t_ptr);
-    }
-}
-
-void alarmHandler(char *arg)
-{
-
+	for(i = 0; i < len; i++)
+		echo(string[i]);
 }

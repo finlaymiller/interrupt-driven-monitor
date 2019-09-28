@@ -1,5 +1,24 @@
 #include "date.h"
 
+void dateHandler(char *arg)
+{
+    if(arg == NULL)
+    {
+        // TODO: print current date
+    }
+    else
+    {
+        //TODO: update SysTick
+        // isolate date components
+        char **date_to_set = strToArray(arg, "-", NUM_DATE_ELEMS);
+
+        // setup date structure
+        date_ptr d_ptr = dateInit();
+        dateSet(d_ptr, date_to_set);
+        datePrint(d_ptr);
+    }
+}
+
 int monthCheck(char *month)
 {
 	int i;
