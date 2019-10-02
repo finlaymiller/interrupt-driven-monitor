@@ -26,7 +26,6 @@
 							// length of a VALID command is 16 characters
 #define MAX_NAME_LEN 6		// length of longest command "alarm" + 1 for '\0'
 #define KEY_ENTER '\x0d'
-//#define KEY_EXIT  '\e'
 #define KEY_BKSPC '\x08'
 
 /* command struct setup */

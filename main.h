@@ -14,10 +14,9 @@
 
 #include "args.h"
 #include "date.h"
-#include "queue.h"
 #include "time.h"
-#include "s2a.h"
 #include "uart.h"
+#include "queue.h"
 
 #define NUM_CMDS 3
 #define MAX_ARG_LEN 20

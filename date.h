@@ -12,7 +12,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "s2a.h"
+#include "args.h"
+#include "queue.h"
 
 #define NUM_CMDS 3
 #define MAX_ARG_LEN 20
@@ -20,8 +21,6 @@
 #define MONTH_LEN 3
 #define NUM_DATE_ELEMS 3
 #define NUM_MONTHS 12
-#define TRUE 1
-#define FALSE 0
 
 typedef struct date_struct
 {
@@ -30,12 +29,11 @@ typedef struct date_struct
     unsigned int year;
 } date_struct;
 
-typedef struct date_struct *date_ptr;
-
-
 void dateHandler(char *);
-int monthCheck(char *month);
-date_ptr dateInit(void);
-void dateSet(date_ptr date, char **date_str);
-void datePrint(date_ptr date);
+int dateCheck(int, char *, int);
+void dateInit(void);
+void dateSet(char **);
+void datePrint(void);
+char *itoa(int, char*, int);
+
 #endif /* DATE_H_ */

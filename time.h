@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "s2a.h"
 #include "args.h"
 
 #define NUM_TIME_ELEMS 4
@@ -28,6 +27,6 @@ typedef struct time_struct
 void timeHandler(char *);
 void timeInit(void);
 void timeSet(char **time_str);
-void timePrint(time_ptr time);
+void timePrint(void);
 
 #endif /* TIME_H_ */

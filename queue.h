@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "args.h"
+
 #define MAX_Q_LEN 32
 #define NUM_Q 3
 #define UART_RX 0
@@ -25,7 +27,8 @@ typedef struct q_struct
   int tail;
 } q_struct;
 
-// declare queue-related functions
+/* declare queue-related functions */
+extern void UART0_START(void);
 void initQTable(int);
 void initQ(q_struct);
 void freeQ(int);
@@ -35,9 +38,8 @@ void enQ(int, char);
 char deQ(int);
 void printQ(int);
 
-/*
-void set_tx_queue_busy(char busy);
-char get_tx_queue_busy(void);
-*/
+/* UART transmission timing related functions */
+void setTXState(int);
+int getTXState(void);
 
 #endif /* QUEUE_H_ */

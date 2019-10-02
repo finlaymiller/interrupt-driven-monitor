@@ -5,6 +5,8 @@
  *      Author: finlay
  */
 
+#include "clock.h"
+
 int main_clock;			// timing for main TIME command-related clock
 int alrm_clock;			// timing for ALARM command-related clock
 int alrm_clock_state;	// state of ALARM clock.

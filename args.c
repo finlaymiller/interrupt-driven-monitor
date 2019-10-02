@@ -11,6 +11,7 @@
 /* globals */
 char cmd_rx[MAX_CMD_LEN];	// command string received from UART
 int cmd_index = 0;			// number of characters in command string
+unsigned int DEBUG_LOC = 0;
 
 cmd_struct cmd_table[NUM_CMDS];
 extern volatile char data_rx;
@@ -85,7 +86,8 @@ void checkChar(char data)
     else
     {
     	// character entered when command string is at max length.
-    	// backspace then add last char to end of cmd
+    	// backspace then add last char to end of command
+    	DEBUG_LOC = 1;
     	handleBackspace();
     	handleChar(data);
     }
@@ -119,13 +121,15 @@ void parseCommand(void)
 	}
 
 	initCommandString();
-	stringTX(NEW_LINE, 2);
+	stringTX(NEW_LINE, 3);
 }
 
 void stringTX(char *string, int len)
 {
 	int i;
-
 	for(i = 0; i < len; i++)
-		echo(string[i]);
+		enQ(UART_TX, string[i]);
+
+	if(!getTXState())
+		UART0_Start();
 }

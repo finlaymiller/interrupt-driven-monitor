@@ -64,12 +64,18 @@ void UART0_IntHandler(void)
         /* XMIT done - clear interrupt */
         UART0_ICR_R |= UART_INT_TX;
 
-        //UART0_DR_R = deQ(UART_TX);
+        if(getTXState()) echo(deQ(UART_TX));
     }
 }
 
 
 /* Derek's Functions */
+
+void UART0_Start(void)
+{
+	setTXState(1);
+	echo(deQ(UART_TX));
+}
 
 void echo(char data)
 {

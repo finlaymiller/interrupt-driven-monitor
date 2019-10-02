@@ -1,64 +1,92 @@
 #include "time.h"
 
-time_struct time;
+static time_struct time;
 
 void timeHandler(char *arg)
 {
-    if(arg == NULL)
-    {
-        // TODO: print current time
-    	char test_string[11] = "18:03:45.9";
-    	stringTX(test_string, 11);
-    }
-    else
+	// four parts to time: hour, minute, second, tenth
+	char *time_to_set[4];
+	int i = 0;
+
+    if(arg)
     {
         //TODO: update SysTick
         // isolate time components
-        char **time_to_set = strToArray(arg, ":.", NUM_TIME_ELEMS);
+        time_to_set[i] = strtok(arg, ":.");
+        while(time_to_set[i] != NULL)
+        		time_to_set[++i] = strtok(NULL, ":.");
 
         // setup time structure
-        timeInit();
-        timeSet(t_ptr, time_to_set);
-        timePrint(t_ptr);
+        timeSet(time_to_set);
     }
+
+    timePrint();
 }
 
 void timeInit(void)
 {
-	time.hour = 0;
-	time.minute = 0;
-	time.second = 0;
-	time.tenth = 0;
+	time_struct *tptr = &time;
+
+	tptr->hour = 0;
+	tptr->minute = 0;
+	tptr->second = 0;
+	tptr->tenth = 0;
 }
 
 void timeSet(char **time_str)
 {
 	// TODO: catch wrong array length
-	int time_num[NUM_TIME_ELEMS];
+	time_struct *tptr = &time;
+	// first  column contains time as an int
+	// second column contains number at which rollover occurs
+	int time_num[NUM_TIME_ELEMS][2] =
+	{
+	    {0, 24},	// hours
+	    {0, 60},	// minutes
+	    {0, 60},	// seconds
+	    {0, 10}		// tenths
+	};
+	int time_final[NUM_TIME_ELEMS] = {0};	// time adjusted for rollover
+	int i, mod, rem;
 
-	// format time
-	int i;
+	// convert time to integer
 	for(i = 0; i < NUM_TIME_ELEMS; i++)
-		time_num[i] = atoi(time_str[i]);
+		time_num[i][0] = atoi(time_str[i]);
 
-	// catch too-large times
-	if(time_num[0] >= 24)
-		time_num[0] %= 24;
-	else if(time_num[1] >= 60)
-		time_num[1] %= 60;
-	else if(time_num[2] >= 60)
-		time_num[2] %= 60;
-	else if(time_num[3] >= 10)
-		time_num[3] %= 10;
+	// catch too-large times by working from tenths-of-a-second up to hours
+	for(i = (NUM_TIME_ELEMS - 1); i >= 0; i--)
+	{
+		// modulus is the rolled-over value for that unit of time
+		mod = time_num[i][0] % time_num[i][1];
+		// remainder is passed on to next-highest time unit
+		rem = time_num[i][0] / time_num[i][1];
 
-	time.hour 	= time_num[0];
-	time.minute = time_num[1];
-	time.second = time_num[2];
-	time.tenth	= time_num[3];
+		time_final[i] 		+= mod;	// store final time
+		time_num[i - 1][0]	+= rem;	// pass on remainder
+	}
+
+	// set times
+	tptr->hour		= time_num[0][0];
+	tptr->minute 	= time_num[1][0];
+	tptr->second 	= time_num[2][0];
+	tptr->tenth		= time_num[3][0];
 }
 
-void timePrint(time_ptr time)
+
+
+void timePrint(void)
 {
-	printf("\nPrinting time:\t\t");
-	printf("HH:MM:SS.T ---> %02d:%02d:%02d.%d", time->hour, time->minute, time->second, time->tenth);
+	time_struct *tptr = &time;
+
+	enQ(UART_TX, KEY_ENTER);
+	enQ(UART_TX, (tptr->hour / 10) + '0');
+	enQ(UART_TX, (tptr->hour % 10) + '0');
+	enQ(UART_TX, ':');
+	enQ(UART_TX, (tptr->minute / 10) + '0');
+	enQ(UART_TX, (tptr->minute % 10) + '0');
+	enQ(UART_TX, ':');
+	enQ(UART_TX, (tptr->second / 10) + '0');
+	enQ(UART_TX, (tptr->second % 10) + '0');
+	enQ(UART_TX, '.');
+	enQ(UART_TX, (tptr->tenth % 10) + '0');
 }

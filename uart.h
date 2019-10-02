@@ -61,14 +61,13 @@
 
 #define TRUE    1
 #define FALSE   0
-#define NEW_LINE "> "
+#define NEW_LINE "\n> "
 
 // Functions
 void UART0_Init(void);
 void UART0_IntEnable(unsigned long);
 void UART0_IntHandler(void);
-
-void UART_force_start(void);
+void UART0_Start(void);
 void echo(char);
 
 #endif /* UART_H_ */

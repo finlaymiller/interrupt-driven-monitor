@@ -46,12 +46,16 @@ void main(void)
     initCommandTable();
     initCommandString();
     initQTable(NUM_Q);
+    timeInit();
+    dateInit();
+
+    //stringTX(NEW_LINE, 3);
 
     while(1)
     {
     	got_data = FALSE;
     	while(!got_data);	// wait until char is received
     	handleQ(UART_RX);
-    	handleQ(UART_TX);
+    	//handleQ(UART_TX);
     }
 }

@@ -8,6 +8,9 @@
 #ifndef CLOCK_H_
 #define CLOCK_H_
 
+#define TRUE 	1
+#define FALSE 	0
+
 void initClocks(void);
 
 #endif /* CLOCK_H_ */

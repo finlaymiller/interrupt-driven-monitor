@@ -5,9 +5,11 @@
  *      Author: Finlay Miller
  */
 
-#include <queue.h>
+#include "uart.h"
+#include "queue.h"
 
 q_struct q_table[NUM_Q];
+int uart_tx_state;
 
 /*
  * Initializes array of queues filled with 0s
@@ -26,6 +28,8 @@ void initQTable(int num_queues)
     	q_table[i].head = 0;
     	q_table[i].tail = 0;
     }
+
+    uart_tx_state = 0;
 }
 
 /*
@@ -71,11 +75,14 @@ void enQ(int q_index, char data)
 	q_struct *queue = &q_table[q_index];
     int next_head = (queue->head + 1) & (MAX_Q_LEN - 1);
 
+    // add character to queue if the queue has room for it
 	if(!isQFull(q_index))
 	{
 		queue->contents[queue->head] = data;
 		queue->head = next_head;
 	}
+
+	if(!getTXState()) UART0_Start();
 }
 
 /*
@@ -95,6 +102,12 @@ char deQ(int q_index)
 	    data = queue->contents[queue->tail];
 	    queue->tail = (queue->tail + 1) & (MAX_Q_LEN - 1);
     }
+	else
+	{
+		if(q_index == UART_TX)
+			setTXState(0);
+		return 0;
+	}
 
 	return data;
 }
@@ -109,14 +122,35 @@ char deQ(int q_index)
 void printQ(int q_index)
 {
 	q_struct *queue = &q_table[q_index];
-	printf("Printing contents of queue");
 
+	char queue_intro_str[40] = "\nPrinting contents of queue";
+	char delim_str[30] = "\n\t------------\n";
+	int len_qis = sizeof(queue_intro_str) / sizeof(char);
+	int len_des	= sizeof(delim_str) / sizeof(char);
 	int i;
+
+	stringTX(queue_intro_str, len_qis);
+
 	for(i = 0; i < MAX_Q_LEN; i++)
 	{
-		printf("\n\t------------\n");
-		printf("%d\t%c", i, queue->contents[i]);
+		stringTX(delim_str, len_des);
+		enQ(UART_TX, (char)i);
+		enQ(UART_TX, '\t');
+		enQ(UART_TX, queue->contents[i]);
 	}
 	
-	printf("\n\t------------\n");
+	stringTX(delim_str, len_des);
+}
+
+/******************************************************************************
+ * Setter and Getter methods for the state of UART transmission				  *
+ *****************************************************************************/
+void setTXState(int state)
+{
+	uart_tx_state = state;
+}
+
+int getTXState(void)
+{
+	return uart_tx_state;
 }
