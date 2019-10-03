@@ -5,7 +5,7 @@ static time_struct time;
 void timeHandler(char *arg)
 {
 	// four parts to time: hour, minute, second, tenth
-	char *time_to_set[4];
+	char *time_to_set[4] = {0};
 	int i = 0;
 
     if(arg)
@@ -33,7 +33,7 @@ void timeInit(void)
 	tptr->tenth = 0;
 }
 
-void timeSet(char **time_str)
+void timeSet(char *time_str[NUM_TIME_ELEMS])
 {
 	// TODO: catch wrong array length
 	time_struct *tptr = &time;
@@ -61,32 +61,76 @@ void timeSet(char **time_str)
 		// remainder is passed on to next-highest time unit
 		rem = time_num[i][0] / time_num[i][1];
 
-		time_final[i] 		+= mod;	// store final time
+		time_final[i] 		 = mod;	// store final time
 		time_num[i - 1][0]	+= rem;	// pass on remainder
 	}
 
 	// set times
-	tptr->hour		= time_num[0][0];
-	tptr->minute 	= time_num[1][0];
-	tptr->second 	= time_num[2][0];
-	tptr->tenth		= time_num[3][0];
+	tptr->hour		= time_final[0];
+	tptr->minute 	= time_final[1];
+	tptr->second 	= time_final[2];
+	tptr->tenth		= time_final[3];
 }
 
+void timeIncrement(void)
+{
+	time_struct *tptr = &time;
 
+	tptr->tenth++;
+
+	if(tptr->tenth >= 10)
+	{
+		tptr->tenth = 0;
+		tptr->second++;
+	}
+	if(tptr->second >= 60)
+	{
+		tptr->second = 0;
+		tptr->minute++;
+	}
+	if(tptr->minute >= 60)
+	{
+		tptr->minute = 0;
+		tptr->hour++;
+	}
+	if(tptr->hour >= 24)
+	{
+		tptr->hour = 0;
+		dateIncrement();
+	}
+}
 
 void timePrint(void)
 {
 	time_struct *tptr = &time;
+	char hour[3];
+	char minute[3];
+	char second[3];
+	char tenth[3];
 
-	enQ(UART_TX, KEY_ENTER);
-	enQ(UART_TX, (tptr->hour / 10) + '0');
-	enQ(UART_TX, (tptr->hour % 10) + '0');
-	enQ(UART_TX, ':');
-	enQ(UART_TX, (tptr->minute / 10) + '0');
-	enQ(UART_TX, (tptr->minute % 10) + '0');
-	enQ(UART_TX, ':');
-	enQ(UART_TX, (tptr->second / 10) + '0');
-	enQ(UART_TX, (tptr->second % 10) + '0');
-	enQ(UART_TX, '.');
-	enQ(UART_TX, (tptr->tenth % 10) + '0');
+	itoa(tptr->hour, hour, 10);
+	itoa(tptr->minute, minute, 10);
+	itoa(tptr->second, second, 10);
+	itoa(tptr->tenth, tenth, 10);
+
+	stringTX((char *) KEY_ENTER);
+	stringTX(hour);
+	stringTX(":");
+	stringTX(minute);
+	stringTX(":");
+	stringTX(second);
+	stringTX(".");
+	stringTX(tenth);
+
+//	enQ(UART_TX, KEY_ENTER);
+//	enQ(UART_TX, (tptr->hour / 10) + '0');
+//	enQ(UART_TX, (tptr->hour % 10) + '0');
+//	enQ(UART_TX, ':');
+//	enQ(UART_TX, (tptr->minute / 10) + '0');
+//	enQ(UART_TX, (tptr->minute % 10) + '0');
+//	enQ(UART_TX, ':');
+//	enQ(UART_TX, (tptr->second / 10) + '0');
+//	enQ(UART_TX, (tptr->second % 10) + '0');
+//	enQ(UART_TX, '.');
+//	enQ(UART_TX, (tptr->tenth % 10) + '0');
 }

@@ -26,7 +26,9 @@ typedef struct time_struct
 
 void timeHandler(char *);
 void timeInit(void);
-void timeSet(char **time_str);
+void timeSet(char *time_str[NUM_TIME_ELEMS]);
+void timeInc(void);
+void timeIncrement(void);
 void timePrint(void);
 
 #endif /* TIME_H_ */

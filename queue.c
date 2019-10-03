@@ -82,7 +82,8 @@ void enQ(int q_index, char data)
 		queue->head = next_head;
 	}
 
-	if(!getTXState()) UART0_Start();
+	if(!getTXState())
+		UART0_Start();
 }
 
 /*
@@ -125,21 +126,19 @@ void printQ(int q_index)
 
 	char queue_intro_str[40] = "\nPrinting contents of queue";
 	char delim_str[30] = "\n\t------------\n";
-	int len_qis = sizeof(queue_intro_str) / sizeof(char);
-	int len_des	= sizeof(delim_str) / sizeof(char);
 	int i;
 
-	stringTX(queue_intro_str, len_qis);
+	stringTX(queue_intro_str);
 
 	for(i = 0; i < MAX_Q_LEN; i++)
 	{
-		stringTX(delim_str, len_des);
+		stringTX(delim_str);
 		enQ(UART_TX, (char)i);
 		enQ(UART_TX, '\t');
 		enQ(UART_TX, queue->contents[i]);
 	}
 	
-	stringTX(delim_str, len_des);
+	stringTX(delim_str);
 }
 
 /******************************************************************************

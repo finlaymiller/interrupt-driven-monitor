@@ -2,6 +2,18 @@
 
 static date_struct date;
 
+const char *month_list[NUM_MONTHS] =
+{
+ 	 "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+	 "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
+};
+
+const char day_list[2][NUM_MONTHS] =
+{
+	{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},	// non-leap-year
+	{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}	// leap-year days
+};
+
 void dateHandler(char *arg)
 {
 	// three parts to date: day, month, year
@@ -29,36 +41,21 @@ int dateCheck(int day, char *month, int year)
 	// date is only written to global struct if this function returns a 3
 	int valid_date = 0;
 	// row of day_list to use. 0 if not a leap year, 1 if a leap year.
-	int leap_index = 0;
-	char *month_list[NUM_MONTHS] =
-	{
-		"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-		"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
-	};
-
-	char day_list[2][NUM_MONTHS] =
-	{
-		{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},	// non-leap-year
-		{31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}	// leap-year days
-	};
+	int leap_index = IS_LEAP_YEAR(year);
 
 	// year check
-	if(0 < year < 10000)
+	if((0 < year) && (year < 10000))
 		valid_date++;
 
-	for (i = 0; i < NUM_MONTHS; i++)
+	for(i = 0; i < NUM_MONTHS; i++)
 	{
-		// month check
-		if(!strncmp(month, month_list[i], MONTH_LEN))
+		if(!(strncmp(month, month_list[i], MONTH_LEN)))
 		{
+			// valid month found
 			valid_date++;
 
-			// leap year check
-			if(!(year % 4))
-				leap_index = 1;
-
 			// day check
-			if(day <= day_list[leap_index][i])
+			if((day > 0) && (day <= day_list[leap_index][i]))
 				valid_date++;
 
 			break;
@@ -72,63 +69,99 @@ void dateInit(void)
 {
 	date_struct *dptr = &date;
 
-	dptr->day = 1;
-	strcpy(dptr->month, "Jan");
-	dptr->year = 1970;
+	dptr->day 	= 1;
+	dptr->month	= 0;
+	dptr->year 	= 1;
 }
 
 void dateSet(char **date_str)
 {
 	// TODO: 	catch wrong array length
 	date_struct *dptr = &date;
-	int date_d 	 = atoi(date_str[0]);
-	char date_m[MONTH_LEN + 1];			// +1 to account for \0
-	int date_y   = atoi(date_str[2]);
+	int date_d, date_m, date_y;
 	int i;
 
-	// convert month to lower case
-	 for(i = 0; date_str[1][i]; i++)
-	   date_m[i] = toupper(date_str[1][i]);
+	int day 	= atoi(date_str[0]);
+	char *month = 0;
+	int year	= atoi(date_str[2]);
+
+	// convert month to upper case
+	while(*month != '\0')
+	{
+		*month = toupper((unsigned char) *month);
+		month++;
+	}
+
+
 	// check validity of input date
 	// ideally I'd check for cases where dateCheck returns > 3...
-	if(dateCheck(date_d, date_m, date_y) < NUM_DATE_ELEMS)
+	if(dateCheck(day, month, year) < NUM_DATE_ELEMS)
 	{
 		enQ(UART_TX, '?');
+		stringTX(NEW_LINE);
 		return;
+	}
+
+	// dates are valid! Now we can send them to the structure
+	date_d = day;
+	date_y = year;
+
+	for(i = 0; i < NUM_MONTHS; i++)
+	{
+		if(!strcmp(month, month_list[i]))
+		{
+			date_m = i;
+			break;
+		}
 	}
 	
 	dptr->day 	= date_d;
-	strcpy(dptr->month, date_m);
+	dptr->month	= date_m;
 	dptr->year 	= date_y;
+}
+
+void dateIncrement(void)
+{
+	date_struct *dptr = &date;
+	int leap_year = (dptr->year % 4) ? 1 : 0;
+
+	dptr->day++;
+
+	if(dptr->day > day_list[leap_year][dptr->month])
+	{
+		dptr->day = 1;
+		dptr->month++;
+	}
+	if(dptr->month >= 12)
+	{
+		dptr->month = 0;
+		dptr->year++;
+	}
+
 }
 
 void datePrint(void)
 {
 	date_struct *dptr = &date;
-	char year[4];
+	char day[3];	// DD + '\0'
+	char year[5];	// YYYY + '\0'
 
+	itoa(dptr->day, day, 10);
 	itoa(dptr->year, year, 10);
 
-	enQ(UART_TX, KEY_ENTER);
-	enQ(UART_TX, (dptr->day / 10) + '0');
-	enQ(UART_TX, (dptr->day % 10) + '0');
-	enQ(UART_TX, '-');
-	enQ(UART_TX, dptr->month[0]);
-	enQ(UART_TX, dptr->month[1]);
-	enQ(UART_TX, dptr->month[2]);
-	enQ(UART_TX, '-');
-	enQ(UART_TX, year[0]);
-	enQ(UART_TX, year[1]);
-	enQ(UART_TX, year[2]);
-	enQ(UART_TX, year[3]);
+	stringTX("\n");
+	stringTX(day);
+	stringTX("-");
+	stringTX((char *) month_list[dptr->month]);
+	stringTX("-");
+	stringTX(year);
 }
 
-
-/**
+/*
  * C++ version 0.4 char* style "itoa":
  * Written by Lukás Chmela
  * Released under GPLv3.
-
+ *
  */
 char* itoa(int value, char* result, int base) {
 	// check that the base if valid

@@ -11,7 +11,6 @@
 /* globals */
 char cmd_rx[MAX_CMD_LEN];	// command string received from UART
 int cmd_index = 0;			// number of characters in command string
-unsigned int DEBUG_LOC = 0;
 
 cmd_struct cmd_table[NUM_CMDS];
 extern volatile char data_rx;
@@ -24,15 +23,15 @@ extern volatile char data_rx;
  */
 void initCommandTable(void)
 {
-    strcpy(cmd_table[0].name, "date");		// add support for accepting the
+    strcpy(cmd_table[0].name, "DATE");		// add support for accepting the
     cmd_table[0].length = 4;				// date command
     cmd_table[0].function = &dateHandler;
 
-    strcpy(cmd_table[1].name, "time");		// add support for accepting the
+    strcpy(cmd_table[1].name, "TIME");		// add support for accepting the
     cmd_table[1].length = 4;				// time command
     cmd_table[1].function = &timeHandler;
 
-    strcpy(cmd_table[2].name, "alarm");		// add support for accepting the
+    strcpy(cmd_table[2].name, "ALARM");		// add support for accepting the
     cmd_table[2].length = 5;				// alarm command
     cmd_table[2].function = &alarmHandler;
 }
@@ -64,43 +63,36 @@ void initCommandString(void)
 void handleQ(int q_index)
 {
     char data = deQ(q_index);	// dequeue char from buffer
-    if(q_index == UART_RX)		// check char if it's just been received
-    	checkChar(data);
+    //if(q_index == UART_RX)		// check char if it's just been received
+    checkChar(data);
     echo(data);					// echo it
 }
 
 void checkChar(char data)
 {
-    if((data == KEY_BKSPC) && (cmd_index > 0))	// delete last char
+    switch(data)
     {
-    	handleBackspace();
-    }
-    else if(data == KEY_ENTER)					// start processing command
-    {
-    	parseCommand();
-    }
-    else if (cmd_index < MAX_CMD_LEN)
-    {
-    	handleChar(data);								// add char to command string
-    }
-    else
-    {
-    	// character entered when command string is at max length.
-    	// backspace then add last char to end of command
-    	DEBUG_LOC = 1;
-    	handleBackspace();
-    	handleChar(data);
-    }
-}
+    case (KEY_BKSPC):
+	{
+    	if(cmd_index > 0)
+    		cmd_rx[--cmd_index] = 0;
+	} break;
 
-void handleBackspace(void)
-{
-	cmd_rx[--cmd_index] = 0;
-}
+    case (KEY_ENTER):
+	{
+		parseCommand();
+	} break;
 
-void handleChar(char data)
-{
-	cmd_rx[cmd_index++] = tolower(data);
+    case ('*'):
+	{
+    	timeIncrement();
+	} break;
+
+    default:
+    {
+    	cmd_rx[cmd_index++] = toupper(data);
+    }
+    }
 }
 
 void parseCommand(void)
@@ -121,12 +113,14 @@ void parseCommand(void)
 	}
 
 	initCommandString();
-	stringTX(NEW_LINE, 3);
+	stringTX(NEW_LINE);
 }
 
-void stringTX(char *string, int len)
+void stringTX(char *string)
 {
+	int len = strlen(string);
 	int i;
+
 	for(i = 0; i < len; i++)
 		enQ(UART_TX, string[i]);
 

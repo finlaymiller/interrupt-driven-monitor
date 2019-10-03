@@ -14,6 +14,7 @@
 
 #include "args.h"
 #include "date.h"
+//#include "systick.h"
 #include "time.h"
 #include "uart.h"
 #include "queue.h"
@@ -25,7 +26,5 @@
 #define NUM_DATE_ELEMS 3
 
 void InterruptEnable(unsigned long InterruptIndex);
-void InterruptMasterEnable(void);
-void InterruptMasterDisable(void);
 
 #endif /* MAIN_H_ */

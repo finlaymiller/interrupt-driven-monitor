@@ -26,7 +26,7 @@
 							// length of a VALID command is 16 characters
 #define MAX_NAME_LEN 6		// length of longest command "alarm" + 1 for '\0'
 #define KEY_ENTER '\x0d'
-#define KEY_BKSPC '\x08'
+#define KEY_BKSPC '\177'
 
 /* command struct setup */
 typedef struct cmd
@@ -43,9 +43,7 @@ void initCommandTable(void);
 void initCommandString(void);
 
 /* command parsing functions */
-void stringTX(char *, int);
-void handleBackspace(void);
-void handleChar(char);
+void stringTX(char *);
 void handleQ(int);
 void checkChar(char);
 void parseCommand(void);

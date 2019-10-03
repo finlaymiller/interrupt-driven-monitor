@@ -63,6 +63,10 @@
 #define FALSE   0
 #define NEW_LINE "\n> "
 
+// CPU interrupt enable/disable
+#define INTERRUPT_MASTER_ENABLE() 	__asm(" cpsie   i")
+#define INTERRUPT_MASTER_DISABLE()	__asm(" cpsid   i")
+
 // Functions
 void UART0_Init(void);
 void UART0_IntEnable(unsigned long);

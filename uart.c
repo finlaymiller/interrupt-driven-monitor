@@ -49,6 +49,7 @@ void UART0_IntHandler(void)
      * Simplified UART ISR - handles receive and xmit interrupts
      * Application signaled when data received
      */
+	INTERRUPT_MASTER_DISABLE();
     if (UART0_MIS_R & UART_INT_RX)
     {
         /* RECV done - clear interrupt and make char available to application */
@@ -58,16 +59,17 @@ void UART0_IntHandler(void)
 
         enQ(UART_RX, data_rx);
     }
+    INTERRUPT_MASTER_ENABLE();
 
     if (UART0_MIS_R & UART_INT_TX)
     {
         /* XMIT done - clear interrupt */
         UART0_ICR_R |= UART_INT_TX;
 
-        if(getTXState()) echo(deQ(UART_TX));
+        if(!getTXState())
+        	echo(deQ(UART_TX));
     }
 }
-
 
 /* Derek's Functions */
 

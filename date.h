@@ -21,11 +21,13 @@
 #define MONTH_LEN 3
 #define NUM_DATE_ELEMS 3
 #define NUM_MONTHS 12
+#define FULL_DATE_LEN 14
+#define IS_LEAP_YEAR(year) ((year % 4) ? 1 : 0)
 
 typedef struct date_struct
 {
     unsigned int day;
-    char month[MONTH_LEN];
+    unsigned int month;
     unsigned int year;
 } date_struct;
 
@@ -33,6 +35,7 @@ void dateHandler(char *);
 int dateCheck(int, char *, int);
 void dateInit(void);
 void dateSet(char **);
+void dateIncrement(void);
 void datePrint(void);
 char *itoa(int, char*, int);
 
