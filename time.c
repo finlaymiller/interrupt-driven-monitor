@@ -10,8 +10,7 @@ void timeHandler(char *arg)
 
     if(arg)
     {
-        //TODO: update SysTick
-        // isolate time components
+        // tokenize time components
         time_to_set[i] = strtok(arg, ":.");
         while(time_to_set[i] != NULL)
         		time_to_set[++i] = strtok(NULL, ":.");
@@ -20,17 +19,17 @@ void timeHandler(char *arg)
         timeSet(time_to_set);
     }
 
-    timePrint();
+    timePrint(0);
 }
 
 void timeInit(void)
 {
 	time_struct *tptr = &time;
 
-	tptr->hour = 0;
-	tptr->minute = 0;
-	tptr->second = 0;
-	tptr->tenth = 0;
+	tptr->hour 		= 0;
+	tptr->minute 	= 0;
+	tptr->second 	= 0;
+	tptr->tenth 	= 0;
 }
 
 void timeSet(char *time_str[NUM_TIME_ELEMS])
@@ -83,16 +82,19 @@ void timeIncrement(void)
 		tptr->tenth = 0;
 		tptr->second++;
 	}
+
 	if(tptr->second >= 60)
 	{
 		tptr->second = 0;
 		tptr->minute++;
 	}
+
 	if(tptr->minute >= 60)
 	{
 		tptr->minute = 0;
 		tptr->hour++;
 	}
+
 	if(tptr->hour >= 24)
 	{
 		tptr->hour = 0;
@@ -100,37 +102,25 @@ void timeIncrement(void)
 	}
 }
 
-void timePrint(void)
+void timePrint(int t_or_a)
 {
 	time_struct *tptr = &time;
-	char hour[3];
-	char minute[3];
-	char second[3];
-	char tenth[3];
+	char time_string[32] = {0};
+	int i = 0;
 
-	itoa(tptr->hour, hour, 10);
-	itoa(tptr->minute, minute, 10);
-	itoa(tptr->second, second, 10);
-	itoa(tptr->tenth, tenth, 10);
+	time_string[i++] = (tptr->hour / 10) + '0';
+	time_string[i++] = (tptr->hour % 10) + '0';
+	time_string[i++] = ':';
+	time_string[i++] = (tptr->minute / 10) + '0';
+	time_string[i++] = (tptr->minute % 10) + '0';
+	time_string[i++] = ':';
+	time_string[i++] = (tptr->second / 10) + '0';
+	time_string[i++] = (tptr->second % 10) + '0';
+	time_string[i++] = '.';
+	time_string[i++] = (tptr->tenth % 10) + '0';
+	time_string[i++] = '\0';
 
-	stringTX((char *) KEY_ENTER);
-	stringTX(hour);
-	stringTX(":");
-	stringTX(minute);
-	stringTX(":");
-	stringTX(second);
-	stringTX(".");
-	stringTX(tenth);
-
-//	enQ(UART_TX, KEY_ENTER);
-//	enQ(UART_TX, (tptr->hour / 10) + '0');
-//	enQ(UART_TX, (tptr->hour % 10) + '0');
-//	enQ(UART_TX, ':');
-//	enQ(UART_TX, (tptr->minute / 10) + '0');
-//	enQ(UART_TX, (tptr->minute % 10) + '0');
-//	enQ(UART_TX, ':');
-//	enQ(UART_TX, (tptr->second / 10) + '0');
-//	enQ(UART_TX, (tptr->second % 10) + '0');
-//	enQ(UART_TX, '.');
-//	enQ(UART_TX, (tptr->tenth % 10) + '0');
+	if(t_or_a) 	UART0_TXStr("Alarm set for ");
+	else		UART0_TXStr("Time is ");
+	UART0_TXStr(time_string);
 }

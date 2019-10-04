@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "args.h"
+#include "command.h"
 #include "queue.h"
 
 #define NUM_CMDS 3
@@ -37,6 +37,7 @@ void dateInit(void);
 void dateSet(char **);
 void dateIncrement(void);
 void datePrint(void);
-char *itoa(int, char*, int);
+int getNumDigit(int *year, int *pos);
+char *itoa(int, char*);
 
 #endif /* DATE_H_ */

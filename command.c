@@ -1,12 +1,12 @@
 /*
- * args.c
+ * command.c
  *
  *  Created on: Sep 21, 2019
  *      Author: Finlay Miller
  *
  */
 
-#include "args.h"
+#include <command.h>
 
 /* globals */
 char cmd_rx[MAX_CMD_LEN];	// command string received from UART
@@ -51,22 +51,6 @@ void initCommandString(void)
 	cmd_index = 0;
 }
 
-/*
- * Handler which is called when a character is received. Pulls a char off the
- * indicated queue (SHOULD always be UART_RX), sends it to the checker
- * functions, then sends it to be echoed.
- *
- * @param: q_index->index position in the queue table of the queue that
- * 					received the character
- * 	@returns: None
- */
-void handleQ(int q_index)
-{
-    char data = deQ(q_index);	// dequeue char from buffer
-    //if(q_index == UART_RX)		// check char if it's just been received
-    checkChar(data);
-    echo(data);					// echo it
-}
 
 void checkChar(char data)
 {
@@ -91,7 +75,7 @@ void checkChar(char data)
     default:
     {
     	cmd_rx[cmd_index++] = toupper(data);
-    }
+    } break;
     }
 }
 
@@ -113,17 +97,5 @@ void parseCommand(void)
 	}
 
 	initCommandString();
-	stringTX(NEW_LINE);
-}
-
-void stringTX(char *string)
-{
-	int len = strlen(string);
-	int i;
-
-	for(i = 0; i < len; i++)
-		enQ(UART_TX, string[i]);
-
-	if(!getTXState())
-		UART0_Start();
+	UART0_TXStr("\n> ");
 }

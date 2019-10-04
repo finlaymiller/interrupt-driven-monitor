@@ -1,5 +1,5 @@
 /*
- * queue->c
+ * queue.c
  *
  *  Created on: Sep 19, 2019
  *      Author: Finlay Miller
@@ -9,7 +9,6 @@
 #include "queue.h"
 
 q_struct q_table[NUM_Q];
-int uart_tx_state;
 
 /*
  * Initializes array of queues filled with 0s
@@ -28,14 +27,29 @@ void initQTable(int num_queues)
     	q_table[i].head = 0;
     	q_table[i].tail = 0;
     }
+}
 
-    uart_tx_state = 0;
+/*
+ * Handler which is called when a character is received. Pulls a char off the
+ * indicated queue (SHOULD always be UART_RX), sends it to the checker
+ * functions, then sends it to be echoed.
+ *
+ * @param: q_index:	index position in the queue table of the queue that
+ * 					received the character
+ * 	@returns: None
+ */
+void handleQ(int q_index)
+{
+    char data = deQ(q_index);	// dequeue char from buffer
+    //if(q_index == UART_TX)
+    	UART0_TXChar(data);		// echo char
+    checkChar(data);			// process char
 }
 
 /*
  * Checks whether or not queue is empty.
  *
- * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * @param q_index: position of queue in q_table. See queue.h for which queue is
  * referred to by each position.
  * @return: 1 if empty, 0 otherwise.
  */
@@ -49,7 +63,7 @@ int isQEmpty(int q_index)
 /*
  * Checks whether or not queue is full.
  *
- * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * @param q_index: position of queue in q_table. See queue.h for which queue is
  * referred to by each position.
  * @param head_pos: next position the queue's head will move to
  * @return: 1 if full, 0 otherwise.
@@ -57,99 +71,76 @@ int isQEmpty(int q_index)
 int isQFull(int q_index)
 {
 	q_struct *queue = &q_table[q_index];
-	int next_head = (queue->head + 1) & (MAX_Q_LEN - 1);
+	int temp_head = NEXT_PTR(queue->head);
 
-	return next_head == queue->tail;
+	return temp_head == queue->tail;
 }
 
 /*
  * Adds value to next available place in queue, if space is available.
  *
- * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * @param q_index: position of queue in q_table. See queue.h for which queue is
  * referred to by each position.
- * @param data: value to give to the queue->
+ * @param data: value to give to the queue.
  * @return: None
  */
 void enQ(int q_index, char data)
 {
 	q_struct *queue = &q_table[q_index];
-    int next_head = (queue->head + 1) & (MAX_Q_LEN - 1);
 
     // add character to queue if the queue has room for it
 	if(!isQFull(q_index))
 	{
 		queue->contents[queue->head] = data;
-		queue->head = next_head;
+		queue->head = NEXT_PTR(queue->head);
 	}
-
-	if(!getTXState())
-		UART0_Start();
 }
 
 /*
- * Removes oldest value at the tail of the queue->
+ * Removes oldest value at the tail of the queue.
  *
- * @param q_index: position of queue in q_table. See queue->h for which queue is
+ * @param q_index: position of queue in q_table. See queue.h for which queue is
  * referred to by each position.
- * @return: Data from the tail of the queue->
+ * @return: Data from the tail of the queue.
  */
 char deQ(int q_index)
 {
 	q_struct *queue = &q_table[q_index];
-	char data = 0;
+	char data = 0x00;
 
 	if(!isQEmpty(q_index))
 	{
 	    data = queue->contents[queue->tail];
-	    queue->tail = (queue->tail + 1) & (MAX_Q_LEN - 1);
+	    queue->tail = NEXT_PTR(queue->tail);
     }
-	else
-	{
-		if(q_index == UART_TX)
-			setTXState(0);
-		return 0;
-	}
 
 	return data;
 }
 
 /*
- * Prints contents of queue to console. Not for onboard use.
+ * Prints contents of queue to console.
  *
- * @param q_index: position of queue in q_table. See queue->h for which queue is
- * referred to by each position.
+ * @param q_index: 	position of queue in q_table. See queue.h for which queue is
+ * 					referred to by each position.
  * @return: None
  */
 void printQ(int q_index)
 {
 	q_struct *queue = &q_table[q_index];
 
-	char queue_intro_str[40] = "\nPrinting contents of queue";
-	char delim_str[30] = "\n\t------------\n";
+	char queue_intro_str[] 	= "\nPrinting contents of queue";
+	char delim_str[] 		= "\n\t------------\n";
 	int i;
 
-	stringTX(queue_intro_str);
+	UART0_TXStr(queue_intro_str);
 
 	for(i = 0; i < MAX_Q_LEN; i++)
 	{
-		stringTX(delim_str);
+		UART0_TXStr(delim_str);
 		enQ(UART_TX, (char)i);
 		enQ(UART_TX, '\t');
 		enQ(UART_TX, queue->contents[i]);
 	}
 	
-	stringTX(delim_str);
-}
-
-/******************************************************************************
- * Setter and Getter methods for the state of UART transmission				  *
- *****************************************************************************/
-void setTXState(int state)
-{
-	uart_tx_state = state;
-}
-
-int getTXState(void)
-{
-	return uart_tx_state;
+	UART0_TXStr(delim_str);
 }

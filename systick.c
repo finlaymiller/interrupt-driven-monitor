@@ -41,10 +41,17 @@ void SysTickIntDisable(void)
 	ST_CTRL_R &= ~(ST_CTRL_INTEN);
 }	
 
-void SysTickHandler(void)
+void SysTick_IntHandler(void)
 {
-	//elapsed = TRUE;
-	enQ(SYSTICK, '*');
+	systick_struct *stptr = &systick;
+
+	stptr->ticks++;
+
+	if(stptr->ticks >= 10)
+	{
+		enQ(SYSTICK, '*');
+		stptr->ticks = 0;
+	}
 }
 
 void SysTickInit(void)
@@ -54,16 +61,7 @@ void SysTickInit(void)
 	SysTickStart();
 	SysTickReset();
 
-    /*
-     * ----------------- HOW TO USE -----------------
-     * 	while(1)
-	 *	{
-	 * 	   elapsed = FALSE;
-	 * 	   while (!elapsed);	// wait for interrupt
-	 * 	   // Actions to take after SysTick interrupt
-	 * 	}
-     * ----------------------------------------------
-     */
+
 }
 
 void SysTickReset(void)
@@ -72,5 +70,5 @@ void SysTickReset(void)
 
 	stptr->ticks = 0;
 	stptr->cmp_val = 0;
-	stptr->countdown_enable = 0;
+	stptr->enable = 0;
 }

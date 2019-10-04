@@ -1,10 +1,15 @@
+/*
+ *
+ * todo: factorize integer->string for month and vice-versa
+ */
+
 #include "date.h"
 
 static date_struct date;
 
-const char *month_list[NUM_MONTHS] =
+const char *month_list[NUM_MONTHS + 1] =
 {
- 	 "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+ 	 "ERR", "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 	 "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
 
@@ -47,7 +52,7 @@ int dateCheck(int day, char *month, int year)
 	if((0 < year) && (year < 10000))
 		valid_date++;
 
-	for(i = 0; i < NUM_MONTHS; i++)
+	for(i = 0; i <= NUM_MONTHS; i++)
 	{
 		if(!(strncmp(month, month_list[i], MONTH_LEN)))
 		{
@@ -55,7 +60,8 @@ int dateCheck(int day, char *month, int year)
 			valid_date++;
 
 			// day check
-			if((day > 0) && (day <= day_list[leap_index][i]))
+			// second day_list index is i + 1 to account for month 0 = ERR
+			if((day > 0) && (day <= day_list[leap_index][i + 1]))
 				valid_date++;
 
 			break;
@@ -70,7 +76,7 @@ void dateInit(void)
 	date_struct *dptr = &date;
 
 	dptr->day 	= 1;
-	dptr->month	= 0;
+	dptr->month	= 1;
 	dptr->year 	= 1;
 }
 
@@ -79,17 +85,17 @@ void dateSet(char **date_str)
 	// TODO: 	catch wrong array length
 	date_struct *dptr = &date;
 	int date_d, date_m, date_y;
-	int i;
+	int i = 0;
 
 	int day 	= atoi(date_str[0]);
-	char *month = 0;
+	char month[MONTH_LEN + 1];	// to account for '\0'
 	int year	= atoi(date_str[2]);
 
 	// convert month to upper case
-	while(*month != '\0')
+	while(date_str[1][i] != '\0')
 	{
-		*month = toupper((unsigned char) *month);
-		month++;
+		month[i] = toupper((unsigned char) date_str[1][i]);
+		i++;
 	}
 
 
@@ -97,8 +103,7 @@ void dateSet(char **date_str)
 	// ideally I'd check for cases where dateCheck returns > 3...
 	if(dateCheck(day, month, year) < NUM_DATE_ELEMS)
 	{
-		enQ(UART_TX, '?');
-		stringTX(NEW_LINE);
+		UART0_TXChar('?');
 		return;
 	}
 
@@ -106,7 +111,7 @@ void dateSet(char **date_str)
 	date_d = day;
 	date_y = year;
 
-	for(i = 0; i < NUM_MONTHS; i++)
+	for(i = 0; i <= NUM_MONTHS; i++)
 	{
 		if(!strcmp(month, month_list[i]))
 		{
@@ -143,18 +148,36 @@ void dateIncrement(void)
 void datePrint(void)
 {
 	date_struct *dptr = &date;
-	char day[3];	// DD + '\0'
-	char year[5];	// YYYY + '\0'
+	char date_string[32] = {0};
+	int year = dptr->year;
+	int div = 1000;
+	int i = 0;
 
-	itoa(dptr->day, day, 10);
-	itoa(dptr->year, year, 10);
+	date_string[i++] = (dptr->day / 10) + '0';
+	date_string[i++] = (dptr->day % 10) + '0';
+	date_string[i++] = '-';
+	date_string[i++] = month_list[dptr->month][0];
+	date_string[i++] = month_list[dptr->month][1];
+	date_string[i++] = month_list[dptr->month][2];
+	date_string[i++] = '-';
+	date_string[i++] = getNumDigit(&year, &div) + '0';
+	date_string[i++] = getNumDigit(&year, &div) + '0';
+	date_string[i++] = getNumDigit(&year, &div) + '0';
+	date_string[i++] = getNumDigit(&year, &div) + '0';
+	date_string[i++] = '\0';
 
-	stringTX("\n");
-	stringTX(day);
-	stringTX("-");
-	stringTX((char *) month_list[dptr->month]);
-	stringTX("-");
-	stringTX(year);
+	UART0_TXStr("Date is ");
+	UART0_TXStr(date_string);
+}
+
+int getNumDigit(int *year, int *pos)
+{
+	int digit = *year / *pos;
+
+	*year %= *pos;
+	*pos /= 10;
+
+	return digit;
 }
 
 /*
@@ -163,17 +186,15 @@ void datePrint(void)
  * Released under GPLv3.
  *
  */
-char* itoa(int value, char* result, int base) {
-	// check that the base if valid
-	if (base < 2 || base > 36) { *result = '\0'; return result; }
+char* itoa(int value, char* result) {
 
 	char* ptr = result, *ptr1 = result, tmp_char;
 	int tmp_value;
 
 	do {
 		tmp_value = value;
-		value /= base;
-		*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * base)];
+		value /= 10;
+		*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * 10)];
 	} while ( value );
 
 	// Apply negative sign

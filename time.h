@@ -12,16 +12,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "args.h"
+#include "command.h"
 
 #define NUM_TIME_ELEMS 4
 
 typedef struct time_struct
 {
-    unsigned int hour;
-    unsigned int minute;
-    unsigned int second;
-    unsigned int tenth;
+	int hour;
+    int minute;
+    int second;
+    int tenth;
 } time_struct;
 
 void timeHandler(char *);
@@ -29,6 +29,6 @@ void timeInit(void);
 void timeSet(char *time_str[NUM_TIME_ELEMS]);
 void timeInc(void);
 void timeIncrement(void);
-void timePrint(void);
+void timePrint(int);
 
 #endif /* TIME_H_ */

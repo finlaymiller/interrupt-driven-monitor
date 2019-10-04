@@ -12,9 +12,9 @@
 
 typedef struct systick_struct
 {
-	int ticks;				// times ticked since last reset
-	int cmp_val;			// number of ticks to run for
-	int countdown_enable;	// T/F whether or not the alarm is running
+	int ticks;		// times ticked since last reset
+	int cmp_val;	// number of ticks to run for
+	int enable;		// T/F whether or not the alarm is running
 } systick_struct;
 
 // SysTick Registers
@@ -43,7 +43,8 @@ void SysTickStop(void);
 void SysTickPeriod(unsigned long);
 void SysTickIntEnable(void);
 void SysTickIntDisable(void);
-void SysTickHandler(void);
+void SysTick_IntHandler(void);
 void SysTickInit(void);
+void SysTickReset(void);
 
 #endif /* SYSTICK_H_ */

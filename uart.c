@@ -35,6 +35,20 @@ void UART0_Init(void)
 
     UART0_CTL_R = UART_CTL_UARTEN;        // Enable the UART
     wait = 0; // wait; give UART time to enable itself.
+
+
+    InterruptEnable(INT_VEC_UART0);       		// Enable UART0 interrupts
+    UART0_IntEnable(UART_INT_RX | UART_INT_TX); // Enable Receive and Transmit interrupts
+    INTERRUPT_MASTER_ENABLE();
+}
+
+void InterruptEnable(unsigned long InterruptIndex)
+{
+    /* Indicate to CPU which device is to interrupt */
+    if(InterruptIndex < 32)
+        NVIC_EN0_R = 1 << InterruptIndex;       // Enable the interrupt in the EN0 Register
+    else
+        NVIC_EN1_R = 1 << (InterruptIndex - 32);    // Enable the interrupt in the EN1 Register
 }
 
 void UART0_IntEnable(unsigned long flags)
@@ -46,41 +60,54 @@ void UART0_IntEnable(unsigned long flags)
 void UART0_IntHandler(void)
 {
     /*
-     * Simplified UART ISR - handles receive and xmit interrupts
+     * Simplified UART ISR - handles receive and transmit interrupts
      * Application signaled when data received
      */
+
+	// Receiving character
 	INTERRUPT_MASTER_DISABLE();
     if (UART0_MIS_R & UART_INT_RX)
     {
         /* RECV done - clear interrupt and make char available to application */
         UART0_ICR_R |= UART_INT_RX;
+
+        /* send data to data_rx variable and set data received flag */
         data_rx = UART0_DR_R;
-        got_data = TRUE;
+        //got_data = TRUE;
 
-        enQ(UART_RX, data_rx);
+        enQ(UART_RX, data_rx);	// send to RX queue
     }
-    INTERRUPT_MASTER_ENABLE();
+   INTERRUPT_MASTER_ENABLE();
 
+    // Transmitting character
     if (UART0_MIS_R & UART_INT_TX)
     {
         /* XMIT done - clear interrupt */
         UART0_ICR_R |= UART_INT_TX;
 
-        if(!getTXState())
-        	echo(deQ(UART_TX));
+        if(!isQEmpty(UART_TX))
+        	UART0_TXChar(deQ(UART_TX));
     }
 }
 
-/* Derek's Functions */
-
-void UART0_Start(void)
+void UART0_TXStr(char *string)
 {
-	setTXState(1);
-	echo(deQ(UART_TX));
+	int len = strlen(string);
+	int i = 0;
+
+	while(i < len)
+		UART0_TXChar(string[i++]);
 }
 
-void echo(char data)
+void UART0_TXChar(char data)
 {
-    /* Echo character on UART */
-    UART0_DR_R = data;
+    while(!UART0_TXReady());	// wait till UART0 is ready
+    UART0_DR_R = data;		// send character to UART0 data register
+}
+
+int UART0_TXReady(void)
+{
+	int x = !(UART0_FR_R & UART_FR_BUSY);
+	// x = 1 if ready, 0 if busy
+	return x;
 }

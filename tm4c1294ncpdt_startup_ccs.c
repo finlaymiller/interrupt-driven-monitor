@@ -34,9 +34,6 @@ static void NmiSR(void);
 static void FaultISR(void);
 static void IntDefaultHandler(void);
 
-// UART interrupt handler
-extern void UART0_IntHandler(void);
-
 //*****************************************************************************
 //
 // External declaration for the reset handler that is to be called when the
@@ -57,7 +54,9 @@ extern uint32_t __STACK_TOP;
 // External declarations for the interrupt handlers used by the application.
 //
 //*****************************************************************************
-// To be added by user
+// UART and SysTick interrupt handlers
+extern void UART0_IntHandler(void);
+extern void SysTick_IntHandler(void);
 
 //*****************************************************************************
 //
@@ -85,7 +84,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
     IntDefaultHandler,                      // The PendSV handler
-    IntDefaultHandler,                      // The SysTick handler * Change *
+    SysTick_IntHandler,                     // The SysTick handler * Change *
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C

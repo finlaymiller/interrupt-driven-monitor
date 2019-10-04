@@ -5,8 +5,8 @@
  *      Author: Finlay Miller
  */
 
-#ifndef ARGS_H_
-#define ARGS_H_
+#ifndef COMMAND_H_
+#define COMMAND_H_
 
 /* default libraries */
 #include <stdio.h>
@@ -43,9 +43,7 @@ void initCommandTable(void);
 void initCommandString(void);
 
 /* command parsing functions */
-void stringTX(char *);
-void handleQ(int);
 void checkChar(char);
 void parseCommand(void);
 
-#endif /* ARGS_H_ */
+#endif /* COMMAND_H_ */

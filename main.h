@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <strings.h>
 
-#include "args.h"
+#include "command.h"
 #include "date.h"
 //#include "systick.h"
 #include "time.h"
@@ -24,7 +24,5 @@
 #define MAX_NAME_LEN 6
 #define MONTH_LEN 3
 #define NUM_DATE_ELEMS 3
-
-void InterruptEnable(unsigned long InterruptIndex);
 
 #endif /* MAIN_H_ */
