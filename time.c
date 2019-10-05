@@ -1,6 +1,6 @@
 #include "time.h"
 
-static time_struct time;
+time_struct time;
 
 void timeHandler(char *arg)
 {
@@ -19,7 +19,7 @@ void timeHandler(char *arg)
         timeSet(time_to_set);
     }
 
-    timePrint(0);
+    timePrint();
 }
 
 void timeInit(void)
@@ -34,7 +34,6 @@ void timeInit(void)
 
 void timeSet(char *time_str[NUM_TIME_ELEMS])
 {
-	// TODO: catch wrong array length
 	time_struct *tptr = &time;
 	// first  column contains time as an int
 	// second column contains number at which rollover occurs
@@ -102,7 +101,7 @@ void timeIncrement(void)
 	}
 }
 
-void timePrint(int t_or_a)
+void timePrint(void)
 {
 	time_struct *tptr = &time;
 	char time_string[32] = {0};
@@ -120,7 +119,36 @@ void timePrint(int t_or_a)
 	time_string[i++] = (tptr->tenth % 10) + '0';
 	time_string[i++] = '\0';
 
-	if(t_or_a) 	UART0_TXStr("Alarm set for ");
-	else		UART0_TXStr("Time is ");
+	UART0_TXStr("Time is ");
 	UART0_TXStr(time_string);
+}
+
+int timeToTicks(int time_str[NUM_TIME_ELEMS])
+{
+	int ticks = 0;
+
+	ticks 	= HOURS_TO_TICKS(time_str[0])
+			+ MINUTES_TO_TICKS(time_str[1])
+			+ SECONDS_TO_TICKS(time_str[2])
+			+ time_str[3];
+
+	return ticks;
+}
+
+time_struct ticksToTime(int ticks)
+{
+	time_struct time;
+
+	time.tenth = ticks;
+
+	time.second = time.tenth / 10;
+	time.tenth %= 10;
+
+	time.minute = time.second / 60;
+	time.second %= 60;
+
+	time.hour = time.minute / 60;
+	time.minute %= 60;
+
+	return time;
 }

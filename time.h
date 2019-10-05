@@ -29,6 +29,8 @@ void timeInit(void);
 void timeSet(char *time_str[NUM_TIME_ELEMS]);
 void timeInc(void);
 void timeIncrement(void);
-void timePrint(int);
+void timePrint(void);
+int timeToTicks(int time_str[NUM_TIME_ELEMS]);
+time_struct ticksToTime(int);
 
 #endif /* TIME_H_ */

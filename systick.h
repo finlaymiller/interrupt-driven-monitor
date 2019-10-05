@@ -20,7 +20,7 @@ typedef struct systick_struct
 // SysTick Registers
 // SysTick Control and Status Register (STCTRL)
 #define ST_CTRL_R   (*((volatile unsigned long *)0xE000E010))
-// Systick Reload Value Register (STRELOAD)
+// SysTick Reload Value Register (STRELOAD)
 #define ST_RELOAD_R (*((volatile unsigned long *)0xE000E014))
 
 // SysTick defines
@@ -28,10 +28,11 @@ typedef struct systick_struct
 #define ST_CTRL_CLK_SRC		0x00000004  // Clock Source for STCTRL
 #define ST_CTRL_INTEN   	0x00000002  // Interrupt Enable for STCTRL
 #define ST_CTRL_ENABLE  	0x00000001  // Enable for STCTRL
+#define MAX_WAIT        	0x01000000	// 2^24
+#define CLK_PERIOD			0x00F42400	// 16 000 000
+#define TICK_RATE			0x0000000A	// Ten times per second
+#define TICK				'*'
 
-// Maximum period
-#define MAX_WAIT        	0x1000000   // 2^24
-#define CLK_PERIOD			0x186A00	// 16 000 000
 /* Global to signal SysTick interrupt */
 //volatile int elapsed;
 // global variable to count number of interrupts on PORTF0 (falling edge)

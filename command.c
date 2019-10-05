@@ -23,16 +23,16 @@ extern volatile char data_rx;
  */
 void initCommandTable(void)
 {
-    strcpy(cmd_table[0].name, "DATE");		// add support for accepting the
-    cmd_table[0].length = 4;				// date command
+    strcpy(cmd_table[0].name, "DATE");
+    cmd_table[0].length = strlen(cmd_table[0].name);
     cmd_table[0].function = &dateHandler;
 
-    strcpy(cmd_table[1].name, "TIME");		// add support for accepting the
-    cmd_table[1].length = 4;				// time command
+    strcpy(cmd_table[1].name, "TIME");
+    cmd_table[1].length = strlen(cmd_table[1].name);
     cmd_table[1].function = &timeHandler;
 
-    strcpy(cmd_table[2].name, "ALARM");		// add support for accepting the
-    cmd_table[2].length = 5;				// alarm command
+    strcpy(cmd_table[2].name, "ALARM");
+    cmd_table[2].length = strlen(cmd_table[2].name);
     cmd_table[2].function = &alarmHandler;
 }
 
@@ -46,7 +46,7 @@ void initCommandString(void)
 {
 	int i;
 	for (i = 0; i < cmd_index; i++)
-		cmd_rx[i] = '\0';
+		cmd_rx[i] = '\x0';
 
 	cmd_index = 0;
 }

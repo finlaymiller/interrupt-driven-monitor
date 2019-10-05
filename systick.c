@@ -8,6 +8,7 @@
 #include "systick.h"
 
 systick_struct systick;
+extern volatile int got_data;
 
 void SysTickStart(void)
 {
@@ -47,21 +48,16 @@ void SysTick_IntHandler(void)
 
 	stptr->ticks++;
 
-	if(stptr->ticks >= 10)
-	{
-		enQ(SYSTICK, '*');
-		stptr->ticks = 0;
-	}
+	enQ(SYSTICK, TICK);
+	got_data = TRUE;
 }
 
 void SysTickInit(void)
 {  
-	SysTickPeriod(CLK_PERIOD);
-	SysTickIntEnable();
-	SysTickStart();
-	SysTickReset();
-
-
+	SysTickPeriod(CLK_PERIOD/TICK_RATE);	// set clock rate
+	SysTickIntEnable();						// enable interrupts
+	SysTickReset();							// initialize struct
+	SysTickStart();							// start ticking
 }
 
 void SysTickReset(void)

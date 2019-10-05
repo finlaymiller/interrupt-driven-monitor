@@ -7,9 +7,9 @@
 
 static date_struct date;
 
-const char *month_list[NUM_MONTHS + 1] =
+const char *month_list[NUM_MONTHS] =
 {
- 	 "ERR", "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+ 	 "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 	 "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
 };
 
@@ -60,8 +60,7 @@ int dateCheck(int day, char *month, int year)
 			valid_date++;
 
 			// day check
-			// second day_list index is i + 1 to account for month 0 = ERR
-			if((day > 0) && (day <= day_list[leap_index][i + 1]))
+			if((day > 0) && (day <= day_list[leap_index][i]))
 				valid_date++;
 
 			break;
@@ -76,8 +75,8 @@ void dateInit(void)
 	date_struct *dptr = &date;
 
 	dptr->day 	= 1;
-	dptr->month	= 1;
-	dptr->year 	= 1;
+	dptr->month	= 0;
+	dptr->year 	= 0;
 }
 
 void dateSet(char **date_str)
@@ -103,7 +102,7 @@ void dateSet(char **date_str)
 	// ideally I'd check for cases where dateCheck returns > 3...
 	if(dateCheck(day, month, year) < NUM_DATE_ELEMS)
 	{
-		UART0_TXChar('?');
+		UART0_TXStr("?\n");
 		return;
 	}
 
@@ -141,6 +140,10 @@ void dateIncrement(void)
 	{
 		dptr->month = 0;
 		dptr->year++;
+	}
+	if(dptr->year >= 10000)
+	{
+		dptr->year = 0;
 	}
 
 }
@@ -181,7 +184,7 @@ int getNumDigit(int *year, int *pos)
 }
 
 /*
- * C++ version 0.4 char* style "itoa":
+ * C version 0.4 char* style "itoa":
  * Written by Lukás Chmela
  * Released under GPLv3.
  *
@@ -194,7 +197,8 @@ char* itoa(int value, char* result) {
 	do {
 		tmp_value = value;
 		value /= 10;
-		*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz" [35 + (tmp_value - value * 10)];
+		*ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"
+				[35 + (tmp_value - value * 10)];
 	} while ( value );
 
 	// Apply negative sign

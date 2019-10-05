@@ -5,10 +5,10 @@
  *      Author: Finlay Miller
  */
 
-#include "uart.h"
 #include "queue.h"
 
 q_struct q_table[NUM_Q];
+extern systick_struct systick;
 
 /*
  * Initializes array of queues filled with 0s
@@ -41,16 +41,28 @@ void initQTable(int num_queues)
 void handleQ(int q_index)
 {
     char data = deQ(q_index);	// dequeue char from buffer
-    //if(q_index == UART_TX)
+    systick_struct *stptr = &systick;
+
+    if(q_index == UART_RX)
+    {
     	UART0_TXChar(data);		// echo char
+    }
+    else if(q_index == SYSTICK)
+    {
+    	timeIncrement();
+    	if(stptr->enable)
+    	    	alarmCheck();
+    	return;
+    }
+
     checkChar(data);			// process char
 }
 
 /*
  * Checks whether or not queue is empty.
  *
- * @param q_index: position of queue in q_table. See queue.h for which queue is
- * referred to by each position.
+ * @param q_index: 	position of queue in q_table. See queue.h for which queue is
+ * 					referred to by each position.
  * @return: 1 if empty, 0 otherwise.
  */
 int isQEmpty(int q_index)
@@ -63,8 +75,8 @@ int isQEmpty(int q_index)
 /*
  * Checks whether or not queue is full.
  *
- * @param q_index: position of queue in q_table. See queue.h for which queue is
- * referred to by each position.
+ * @param q_index: 	position of queue in q_table. See queue.h for which queue is
+ * 					referred to by each position.
  * @param head_pos: next position the queue's head will move to
  * @return: 1 if full, 0 otherwise.
  */
@@ -79,9 +91,9 @@ int isQFull(int q_index)
 /*
  * Adds value to next available place in queue, if space is available.
  *
- * @param q_index: position of queue in q_table. See queue.h for which queue is
- * referred to by each position.
- * @param data: value to give to the queue.
+ * @param q_index: 	position of queue in q_table. See queue.h for which queue is
+ * 					referred to by each position.
+ * @param data: 	value to give to the queue.
  * @return: None
  */
 void enQ(int q_index, char data)

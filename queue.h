@@ -13,6 +13,9 @@
 #include <string.h>
 
 #include "command.h"
+#include "time.h"
+#include "uart.h"
+#include "systick.h"
 
 /* define queue properties */
 #define MAX_Q_LEN 64	// length of queue

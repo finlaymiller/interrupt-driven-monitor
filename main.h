@@ -2,6 +2,7 @@
  * main.h
  *
  *  Created on: Sep 23, 2019
+ * Modified on:	Oct  5, 2019
  *      Author: Finlay Miller
  */
 
@@ -14,7 +15,6 @@
 
 #include "command.h"
 #include "date.h"
-//#include "systick.h"
 #include "time.h"
 #include "uart.h"
 #include "queue.h"

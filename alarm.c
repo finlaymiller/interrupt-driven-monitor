@@ -8,39 +8,38 @@
 #include "alarm.h"
 
 extern systick_struct systick;
+extern time_struct time;
 
 void alarmHandler(char *arg)
 {
 	// four parts to time: hour, minute, second, tenth
 	systick_struct *stptr = &systick;
-	char *alarm_to_set[4] = {0};
+	int alarm_elems[NUM_TIME_ELEMS] = {0};
 	int i = 0;
 
     if(arg)
     {
-        // tokenize alarm components
-        alarm_to_set[i] = strtok(arg, ":.");
-        while(alarm_to_set[i] != NULL)
-        		alarm_to_set[++i] = strtok(NULL, ":.");
+    	alarm_elems[i] = atoi(strtok(arg, ":."));
+    	while( i < NUM_TIME_ELEMS)
+    			alarm_elems[++i] = atoi(strtok(NULL, ":."));
 
         // setup time structure
-        alarmSet(alarm_to_set);
+        alarmSet(alarm_elems);
     }
-    else
-    	if(stptr->enable)
-    		alarmClear();
-
-    timePrint(1);
+    else if(stptr->enable)
+    {
+    	alarmClear();
+    }
 }
 
-void alarmSet(char *alarm_str[NUM_TIME_ELEMS])
+void alarmSet(int alarm_arr[NUM_TIME_ELEMS])
 {
-	systick_struct *stptr = &systick;
-	int time_to_run = timeToTicks(alarm_str);
+	systick_struct *stptr	= &systick;
 
-	stptr->cmp_val = time_to_run;
+	stptr->cmp_val = timeToTicks(alarm_arr);
 	stptr->enable = 1;
 
+	alarmPrint();
 }
 
 void alarmClear(void)
@@ -49,23 +48,50 @@ void alarmClear(void)
 
 	stptr->cmp_val = 0;
 	stptr->enable = 0;
-	UART0_TXStr("\nAlarm cleared.");
+	UART0_TXStr("Alarm cleared.");
 }
 
-int timeToTicks(char *time_str[NUM_TIME_ELEMS])
+void alarmCheck(void)
 {
-	int time[4] = {0};
-	int ticks = 0;
-	int i;
+	systick_struct *stptr = &systick;
 
-	// convert time to integer
-	for(i = 0; i < NUM_TIME_ELEMS; i++)
-		time[i] = atoi(time_str[i]);
+	if(!(--stptr->cmp_val))
+	{
+		stptr->enable = 0;
+		UART0_TXChar(BEL);
+		UART0_TXStr("\nDING DING DING DING");	// alarms should be annoying
+		UART0_TXStr("\n> ");
+		initCommandString();	// need to reset command string since alarm
+								// interrupts typing
+	}
 
-	ticks 	= HOURS_TO_TICKS(time[0])
-			+ MINUTES_TO_TICKS(time[1])
-			+ SECONDS_TO_TICKS(time[2])
-			+ time[3];
+}
 
-	return ticks;
+void alarmPrint(void)
+{
+	time_struct time_cpy = time;
+	systick_struct *stptr = &systick;
+	time_struct alarm = ticksToTime(stptr->cmp_val);
+	char alarm_string[32] = {0};
+	int i = 0;
+
+	alarm.hour 		+= time_cpy.hour;
+	alarm.minute	+= time_cpy.minute;
+	alarm.second	+= time_cpy.second;
+	alarm.tenth 	+= time_cpy.tenth;
+
+	alarm_string[i++] = (alarm.hour / 10) + '0';
+	alarm_string[i++] = (alarm.hour % 10) + '0';
+	alarm_string[i++] = ':';
+	alarm_string[i++] = (alarm.minute / 10) + '0';
+	alarm_string[i++] = (alarm.minute % 10) + '0';
+	alarm_string[i++] = ':';
+	alarm_string[i++] = (alarm.second / 10) + '0';
+	alarm_string[i++] = (alarm.second % 10) + '0';
+	alarm_string[i++] = '.';
+	alarm_string[i++] = (alarm.tenth % 10) + '0';
+	alarm_string[i++] = '\0';
+
+	UART0_TXStr("Alarm is set for ");
+	UART0_TXStr(alarm_string);
 }
