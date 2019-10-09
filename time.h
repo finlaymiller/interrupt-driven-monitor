@@ -11,10 +11,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "command.h"
 
 #define NUM_TIME_ELEMS 4
+#define HOURS_TO_TICKS(hours) 		(hours * 36000)
+#define MINUTES_TO_TICKS(minutes) 	(minutes * 600)
+#define SECONDS_TO_TICKS(seconds) 	(seconds * 10)
 
 typedef struct time_struct
 {
@@ -24,10 +28,9 @@ typedef struct time_struct
     int tenth;
 } time_struct;
 
-void timeHandler(char *);
 void timeInit(void);
-void timeSet(char *time_str[NUM_TIME_ELEMS]);
-void timeInc(void);
+int timeHandler(char *);
+static void timeSet(int time_str[NUM_TIME_ELEMS]);
 void timeIncrement(void);
 void timePrint(void);
 int timeToTicks(int time_str[NUM_TIME_ELEMS]);

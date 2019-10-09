@@ -2,25 +2,6 @@
 
 time_struct time;
 
-void timeHandler(char *arg)
-{
-	// four parts to time: hour, minute, second, tenth
-	char *time_to_set[4] = {0};
-	int i = 0;
-
-    if(arg)
-    {
-        // tokenize time components
-        time_to_set[i] = strtok(arg, ":.");
-        while(time_to_set[i] != NULL)
-        		time_to_set[++i] = strtok(NULL, ":.");
-
-        // setup time structure
-        timeSet(time_to_set);
-    }
-
-    timePrint();
-}
 
 void timeInit(void)
 {
@@ -32,24 +13,51 @@ void timeInit(void)
 	tptr->tenth 	= 0;
 }
 
-void timeSet(char *time_str[NUM_TIME_ELEMS])
+
+int timeHandler(char *arg)
+{
+	char *token;
+	int time_to_set[NUM_TIME_ELEMS] = {0};
+	int number;
+	unsigned int i = 0;
+
+    if(arg)
+    {	/* tokenize argument and convert to integers */
+    	token = strtok(arg, ":.");
+    	while(i < NUM_TIME_ELEMS)
+    	{	/* check whether or not token is a number */
+			if(my_atoi(token, (int *)&number))
+				time_to_set[i++] = number;
+			else
+				return FALSE;
+
+			token = strtok(NULL, ":.");	// get next token
+    	}
+
+        // setup time structure
+        timeSet(time_to_set);
+    }
+
+    timePrint();
+
+    return TRUE;
+}
+
+
+static void timeSet(int time_str[NUM_TIME_ELEMS])
 {
 	time_struct *tptr = &time;
 	// first  column contains time as an int
 	// second column contains number at which rollover occurs
 	int time_num[NUM_TIME_ELEMS][2] =
 	{
-	    {0, 24},	// hours
-	    {0, 60},	// minutes
-	    {0, 60},	// seconds
-	    {0, 10}		// tenths
+	    {time_str[0], 24},	// hours
+	    {time_str[1], 60},	// minutes
+	    {time_str[2], 60},	// seconds
+	    {time_str[3], 10}		// tenths
 	};
 	int time_final[NUM_TIME_ELEMS] = {0};	// time adjusted for rollover
 	int i, mod, rem;
-
-	// convert time to integer
-	for(i = 0; i < NUM_TIME_ELEMS; i++)
-		time_num[i][0] = atoi(time_str[i]);
 
 	// catch too-large times by working from tenths-of-a-second up to hours
 	for(i = (NUM_TIME_ELEMS - 1); i >= 0; i--)
@@ -68,8 +76,13 @@ void timeSet(char *time_str[NUM_TIME_ELEMS])
 	tptr->minute 	= time_final[1];
 	tptr->second 	= time_final[2];
 	tptr->tenth		= time_final[3];
+
 }
 
+/*
+ * When a character is detected in the SysTick queue indicating that a tenth of
+ * a second has passed, this function is called. If
+ */
 void timeIncrement(void)
 {
 	time_struct *tptr = &time;
@@ -78,25 +91,25 @@ void timeIncrement(void)
 
 	if(tptr->tenth >= 10)
 	{
-		tptr->tenth = 0;
+		tptr->tenth %= 10;
 		tptr->second++;
 	}
 
 	if(tptr->second >= 60)
 	{
-		tptr->second = 0;
+		tptr->second %= 60;
 		tptr->minute++;
 	}
 
 	if(tptr->minute >= 60)
 	{
-		tptr->minute = 0;
+		tptr->minute %= 60;
 		tptr->hour++;
 	}
 
 	if(tptr->hour >= 24)
 	{
-		tptr->hour = 0;
+		tptr->hour %= 24;
 		dateIncrement();
 	}
 }

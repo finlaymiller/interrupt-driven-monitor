@@ -8,13 +8,15 @@
 #ifndef SYSTICK_H_
 #define SYSTICK_H_
 
+/* required custom file links */
 #include "uart.h"
 
+/* systick struct definition */
 typedef struct systick_struct
 {
-	int ticks;		// times ticked since last reset
-	int cmp_val;	// number of ticks to run for
-	int enable;		// T/F whether or not the alarm is running
+	unsigned int ticks;		// times ticked since last reset
+	unsigned int cmp_val;	// number of ticks to run for
+	unsigned int enabled;	// T/F whether or not the alarm is running
 } systick_struct;
 
 // SysTick Registers
@@ -32,11 +34,6 @@ typedef struct systick_struct
 #define CLK_PERIOD			0x00F42400	// 16 000 000
 #define TICK_RATE			0x0000000A	// Ten times per second
 #define TICK				'*'
-
-/* Global to signal SysTick interrupt */
-//volatile int elapsed;
-// global variable to count number of interrupts on PORTF0 (falling edge)
-//volatile int count = 0;
 
 // Function Declarations
 void SysTickStart(void);

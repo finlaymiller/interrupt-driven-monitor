@@ -8,22 +8,20 @@
 #ifndef DATE_H_
 #define DATE_H_
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
+/* required custom file links */
 #include "command.h"
 #include "queue.h"
+#include "utils.h"
 
-#define NUM_CMDS 3
-#define MAX_ARG_LEN 20
-#define MAX_NAME_LEN 6
-#define MONTH_LEN 3
+/* define date properties */
+#define MONTH_LEN 3			// month names are stored in 3 character strings
 #define NUM_DATE_ELEMS 3
 #define NUM_MONTHS 12
-#define FULL_DATE_LEN 14
-#define IS_LEAP_YEAR(year) ((year % 4) ? 1 : 0)
 
+/* leap year macro */
+#define IS_LEAP_YEAR(year) ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0)))
+
+/* date struct setup */
 typedef struct date_struct
 {
     unsigned int day;
@@ -31,13 +29,12 @@ typedef struct date_struct
     unsigned int year;
 } date_struct;
 
-void dateHandler(char *);
-int dateCheck(int, char *, int);
+/* function definitions */
 void dateInit(void);
-void dateSet(char **);
+int dateHandler(char *);
+int dateCheck(int, char *, int);
+static int dateSet(char **);
 void dateIncrement(void);
-void datePrint(void);
-int getNumDigit(int *year, int *pos);
-char *itoa(int, char*);
+static void datePrint(void);
 
 #endif /* DATE_H_ */

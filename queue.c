@@ -2,68 +2,70 @@
  * queue.c
  *
  *  Created on: Sep 19, 2019
+ * Modified on:	Oct 09, 2019
  *      Author: Finlay Miller
+ *
+ *	Contains all circular-queue-related functions for monitor operation.
  */
 
 #include "queue.h"
 
+/* globals */
 q_struct q_table[NUM_Q];
 extern systick_struct systick;
+extern int cmd_index;		// number of characters currently in command string
+
 
 /*
- * Initializes array of queues filled with 0s
+ * Initializes array of queues filled with zeroes
  *
- * @param num_queues: Number of queues to fill array with
- * @return:	None
+ * @param num_queues: 	Number of queues to fill array with
+ * @return:				None
  */
 void initQTable(int num_queues)
 {
-    int i;
+    unsigned int i, j;
     for(i = 0; i < num_queues; i++)
     {
-    	int j;
     	for(j = 0; j < MAX_Q_LEN; j++)
     		q_table[i].contents[j] = 0;
+
     	q_table[i].head = 0;
     	q_table[i].tail = 0;
     }
 }
 
 /*
- * Handler which is called when a character is received. Pulls a char off the
- * indicated queue (SHOULD always be UART_RX), sends it to the checker
- * functions, then sends it to be echoed.
+ * Handler which is called when a character is received. dequeues a char from
+ * the indicated queue, sends it to the checker functions, then sends it to
  *
- * @param: q_index:	index position in the queue table of the queue that
+ * @param: q_index:	Index position in the queue table of the queue that
  * 					received the character
- * 	@returns: None
+ * @returns: 		None
  */
 void handleQ(int q_index)
 {
     char data = deQ(q_index);	// dequeue char from buffer
     systick_struct *stptr = &systick;
 
-    if(q_index == UART_RX)
+    if(q_index == UART_RX)		// received character handler
     {
-    	UART0_TXChar(data);		// echo char
+    	checkChar(data);		// process char
     }
-    else if(q_index == SYSTICK)
+    else if(q_index == SYSTICK)	// update SYSTICK
     {
     	timeIncrement();
-    	if(stptr->enable)
+    	if(stptr->enabled)		// check alarm if one is set
     	    	alarmCheck();
-    	return;
     }
-
-    checkChar(data);			// process char
 }
 
 /*
  * Checks whether or not queue is empty.
  *
- * @param q_index: 	position of queue in q_table. See queue.h for which queue is
- * 					referred to by each position.
- * @return: 1 if empty, 0 otherwise.
+ * @param q_index: 	Index of queue in q_table. See queue.h for which queue
+ * 					is referred to by each position.
+ * @return: 		1 if empty, 0 otherwise.
  */
 int isQEmpty(int q_index)
 {
@@ -75,10 +77,8 @@ int isQEmpty(int q_index)
 /*
  * Checks whether or not queue is full.
  *
- * @param q_index: 	position of queue in q_table. See queue.h for which queue is
- * 					referred to by each position.
- * @param head_pos: next position the queue's head will move to
- * @return: 1 if full, 0 otherwise.
+ * @param q_index: 	Index of queue in q_table.
+ * @return: 		1 if full, 0 otherwise.
  */
 int isQFull(int q_index)
 {
@@ -90,11 +90,11 @@ int isQFull(int q_index)
 
 /*
  * Adds value to next available place in queue, if space is available.
+ * todo		add success/fail return value if queue is full
  *
- * @param q_index: 	position of queue in q_table. See queue.h for which queue is
- * 					referred to by each position.
- * @param data: 	value to give to the queue.
- * @return: None
+ * @param q_index: 	Index of queue in q_table.
+ * @param data: 	Value to give to the queue.
+ * @return: 		None
  */
 void enQ(int q_index, char data)
 {
@@ -110,15 +110,15 @@ void enQ(int q_index, char data)
 
 /*
  * Removes oldest value at the tail of the queue.
+ * todo		add success/fail return value if queue is empty, not just 0
  *
- * @param q_index: position of queue in q_table. See queue.h for which queue is
- * referred to by each position.
- * @return: Data from the tail of the queue.
+ * @param q_index:	Index of queue in q_table.
+ * @return: 		Data from the tail of the queue.
  */
 char deQ(int q_index)
 {
 	q_struct *queue = &q_table[q_index];
-	char data = 0x00;
+	char data = 0;
 
 	if(!isQEmpty(q_index))
 	{
@@ -127,32 +127,4 @@ char deQ(int q_index)
     }
 
 	return data;
-}
-
-/*
- * Prints contents of queue to console.
- *
- * @param q_index: 	position of queue in q_table. See queue.h for which queue is
- * 					referred to by each position.
- * @return: None
- */
-void printQ(int q_index)
-{
-	q_struct *queue = &q_table[q_index];
-
-	char queue_intro_str[] 	= "\nPrinting contents of queue";
-	char delim_str[] 		= "\n\t------------\n";
-	int i;
-
-	UART0_TXStr(queue_intro_str);
-
-	for(i = 0; i < MAX_Q_LEN; i++)
-	{
-		UART0_TXStr(delim_str);
-		enQ(UART_TX, (char)i);
-		enQ(UART_TX, '\t');
-		enQ(UART_TX, queue->contents[i]);
-	}
-	
-	UART0_TXStr(delim_str);
 }
