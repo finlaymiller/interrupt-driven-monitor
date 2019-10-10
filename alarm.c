@@ -105,7 +105,10 @@ void alarmCheck(void)
 {
 	systick_struct *stptr = &systick;
 
-	if((--stptr->cmp_val) <= 0)	// decrement the timer and see if it equals 0
+	if(stptr->cmp_val > 0)		// underflow guard
+		stptr->cmp_val--;
+
+	if((stptr->cmp_val) <= 0)	// decrement the timer and see if it equals 0
 	{
 		stptr->enabled = 0;		// disable alarm
 		UART0_TXChar(BEL);		// play bell noise
