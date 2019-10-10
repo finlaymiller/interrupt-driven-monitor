@@ -2,14 +2,13 @@
  * 	alarm.c
  *
  *  Created on: Sep 23, 2019
- * Modified on:	Oct 05, 2019
+ * Modified on:	Oct 09, 2019
  *      Author: Finlay Miller
  *
  *	Contains alarm command-related functions including set, clear, print, and
  *	others. More detail on the alarm function can be found in the design docs
  *	and in the program description at the beginning of main.c. Note that alarm
  *	data is stored in the global SysTick struct described in systick.c
- *
  */
 
 #include "alarm.h"
@@ -122,7 +121,8 @@ void alarmCheck(void)
  * This function prints the confirmation that the alarm has been set.
  * If you know a more efficient/practical/pretty way of doing the actual
  * time-to-string conversion for printing I would love to know how! I tried
- * many things and this was the best I could come up with.
+ * many things and this was the best I could come up with. It's so formulaic
+ * I figure there must be a better way. I run out of memory if I use sprintf.
  *
  * @param	None
  * @returns	None

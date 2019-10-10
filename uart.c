@@ -4,10 +4,14 @@
  *
  * Author: Emad Khan, ECED4402 TA
  * Summer 2017
+ *
+ * Modified:	Oct 5th, 2019
+ * Editor:		Finlay Miller
  */
 
 #include "uart.h"
 
+/* globals */
 volatile char data_rx;
 volatile int got_data;
 
@@ -77,7 +81,6 @@ void UART0_IntHandler(void)
 
         enQ(UART_RX, data_rx);	// send to RX queue
     }
-   INTERRUPT_MASTER_ENABLE();
 
     // Transmitting character
     if (UART0_MIS_R & UART_INT_TX)
@@ -85,29 +88,42 @@ void UART0_IntHandler(void)
         /* XMIT done - clear interrupt */
         UART0_ICR_R |= UART_INT_TX;
 
+        /* transmit char if one is available */
         if(!isQEmpty(UART_TX))
         	UART0_TXChar(deQ(UART_TX));
     }
+    INTERRUPT_MASTER_ENABLE();
 }
 
+/*
+ * This function makes it easier to transmit an entire string via UART
+ *
+ * @param	string: The string to be transmitted
+ * @returns:		None
+ */
 void UART0_TXStr(char *string)
 {
-	int len = strlen(string);
-	int i = 0;
+	unsigned int len = strlen(string);
+	unsigned int i = 0;
 
 	while(i < len)
 		UART0_TXChar(string[i++]);
 }
 
+/*
+ * This function makes it easier to transmit a character via UART
+ *
+ * @param	data:	The character to be transmitted
+ * @returns:		None
+ */
 void UART0_TXChar(char data)
 {
     while(!UART0_TXReady());	// wait till UART0 is ready
-    UART0_DR_R = data;		// send character to UART0 data register
+    UART0_DR_R = data;			// send character to UART0 data register
 }
 
 int UART0_TXReady(void)
 {
-	int x = !(UART0_FR_R & UART_FR_BUSY);
-	// x = 1 if ready, 0 if busy
-	return x;
+	// 1 if ready, 0 if busy
+	return !(UART0_FR_R & UART_FR_BUSY);
 }

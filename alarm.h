@@ -15,8 +15,8 @@
 #include "command.h"
 #include "time.h"
 #include "date.h"
+#include "my_atoi.h"
 #include "systick.h"
-#include "utils.h"
 
 /* required definitions */
 #define NUM_TIME_ELEMS 	4		// hour, minute, second, and tenth

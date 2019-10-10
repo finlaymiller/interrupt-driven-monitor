@@ -10,8 +10,8 @@
 
 /* required custom file links */
 #include "command.h"
+#include "my_atoi.h"
 #include "queue.h"
-#include "utils.h"
 
 /* define date properties */
 #define MONTH_LEN 3			// month names are stored in 3 character strings
@@ -36,5 +36,6 @@ int dateCheck(int, char *, int);
 static int dateSet(char **);
 void dateIncrement(void);
 static void datePrint(void);
+int getNumDigit(int *, int *);
 
 #endif /* DATE_H_ */

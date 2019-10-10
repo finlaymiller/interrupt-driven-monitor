@@ -9,6 +9,7 @@
 #ifndef UART_H_
 #define UART_H_
 
+/* required custom file links */
 #include "queue.h"
 
 // UART0 & PORTA Registers

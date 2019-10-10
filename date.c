@@ -217,3 +217,21 @@ static void datePrint(void)
 	UART0_TXStr("Date is ");
 	UART0_TXStr(date_string);
 }
+
+/*
+ * This is a simple function to help the datePrint function correctly print the
+ * year.
+ *
+ * @param:	year:	The year to be printed
+ * @param:	pos:	The position of the digit to print
+ * @returns:		The digit at that position
+ */
+int getNumDigit(int *year, int *pos)
+{
+	int digit = *year / *pos;
+
+	*year %= *pos;
+	*pos /= 10;
+
+	return digit;
+}
