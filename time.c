@@ -7,7 +7,7 @@
  *
  *	Contains time command-related functions including set, clear, and print.
  *	More detail on the alarm function can be found in the design documents
- *	and in the program description at the beginning of main.c.
+ *	and in the program description at the beginning of monitor.c.
  */
 
 #include "time.h"

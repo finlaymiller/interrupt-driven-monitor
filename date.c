@@ -7,8 +7,8 @@
  *
  *	Contains date command-related functions including set, clear, print, and
  *	others. More detail on the alarm function can be found in the design docs
- *	and in the program description at the beginning of main.c. Note that alarm
- *	data is stored in the global SysTick struct described in systick.c
+ *	and in the program description at the beginning of monitor.c. Note that alarm
+ *	data is stored in the global SysTick struct described in systick.c.
  *
  */
 

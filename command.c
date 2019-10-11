@@ -6,7 +6,7 @@
  *      Author: Finlay Miller
  *
  *	Contains functions related to handling user-input commands. Supported
- *	commands are detailed in the design doc as well as main.c
+ *	commands are detailed in the design doc as well as monitor.c.
  */
 
 #include "command.h"
