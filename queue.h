@@ -10,6 +10,7 @@
 
 /* required custom file links */
 #include "command.h"
+#include "monitor.h"
 #include "time.h"
 #include "uart.h"
 #include "systick.h"

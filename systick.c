@@ -13,7 +13,7 @@
 #include "systick.h"
 
 /* globals */
-systick_struct systick;
+sys_tick systick;
 extern volatile int got_data;
 
 
@@ -49,7 +49,7 @@ void SysTickIntDisable(void)
 
 void SysTick_IntHandler(void)
 {
-	systick_struct *stptr = &systick;
+	sys_tick *stptr = &systick;
 
 	stptr->ticks++;			// increment global time counter
 
@@ -73,7 +73,7 @@ void SysTickInit(void)
  */
 void SysTickReset(void)
 {
-	systick_struct *stptr = &systick;
+	sys_tick *stptr = &systick;
 
 	stptr->ticks = 0;
 	stptr->cmp_val = 0;

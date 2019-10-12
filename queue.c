@@ -12,7 +12,7 @@
 
 /* globals */
 q_struct q_table[NUM_Q];
-extern systick_struct systick;
+extern Monitor monitor;
 extern int cmd_index;		// number of characters currently in command string
 
 
@@ -46,7 +46,7 @@ void initQTable(int num_queues)
 void handleQ(int q_index)
 {
     char data = deQ(q_index);	// dequeue char from buffer
-    systick_struct *stptr = &systick;
+    //sys_tick *stptr = &systick;
 
     if(q_index == UART_RX)		// received character handler
     {
@@ -55,7 +55,7 @@ void handleQ(int q_index)
     else if(q_index == SYSTICK)	// update SYSTICK
     {
     	timeIncrement();
-    	if(stptr->enabled)		// check alarm if one is set
+    	if(monitor.systick.enabled)		// check alarm if one is set
     	    	alarmCheck();
     }
 }

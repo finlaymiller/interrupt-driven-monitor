@@ -15,6 +15,7 @@
 #include "command.h"
 #include "time.h"
 #include "date.h"
+#include "monitor.h"
 #include "my_atoi.h"
 #include "systick.h"
 

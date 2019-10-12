@@ -13,7 +13,7 @@
 #include "time.h"
 
 /* globals */
-time_struct time;
+extern Monitor monitor;
 
 
 /*
@@ -62,12 +62,12 @@ int timeHandler(char *arg)
  */
 void timeInit(void)
 {
-	time_struct *tptr = &time;
+	//sys_time *tptr = &time;
 
-	tptr->hour 		= 0;
-	tptr->minute 	= 0;
-	tptr->second 	= 0;
-	tptr->tenth 	= 0;
+	monitor.time.hour 		= 0;
+	monitor.time.minute 	= 0;
+	monitor.time.second 	= 0;
+	monitor.time.tenth 	= 0;
 }
 
 /*
@@ -78,7 +78,7 @@ void timeInit(void)
  */
 static void timeSet(int time_elems[NUM_TIME_ELEMS])
 {
-	time_struct *tptr = &time;
+	//sys_time *tptr = &time;
 	// first  column contains time as an integer
 	// second column contains number at which rollover occurs
 	int time_num[NUM_TIME_ELEMS][2] =
@@ -104,10 +104,10 @@ static void timeSet(int time_elems[NUM_TIME_ELEMS])
 	}
 
 	// set times
-	tptr->hour	 = time_final[0];
-	tptr->minute = time_final[1];
-	tptr->second = time_final[2];
-	tptr->tenth	 = time_final[3];
+	monitor.time.hour	 = time_final[0];
+	monitor.time.minute = time_final[1];
+	monitor.time.second = time_final[2];
+	monitor.time.tenth	 = time_final[3];
 
 }
 
@@ -121,31 +121,31 @@ static void timeSet(int time_elems[NUM_TIME_ELEMS])
  */
 void timeIncrement(void)
 {
-	time_struct *tptr = &time;
+	//sys_time *tptr = &time;
 
-	tptr->tenth++;
+	monitor.time.tenth++;
 
-	if(tptr->tenth >= 10)
+	if(monitor.time.tenth >= 10)
 	{
-		tptr->tenth %= 10;
-		tptr->second++;
+		monitor.time.tenth %= 10;
+		monitor.time.second++;
 	}
 
-	if(tptr->second >= 60)
+	if(monitor.time.second >= 60)
 	{
-		tptr->second %= 60;
-		tptr->minute++;
+		monitor.time.second %= 60;
+		monitor.time.minute++;
 	}
 
-	if(tptr->minute >= 60)
+	if(monitor.time.minute >= 60)
 	{
-		tptr->minute %= 60;
-		tptr->hour++;
+		monitor.time.minute %= 60;
+		monitor.time.hour++;
 	}
 
-	if(tptr->hour >= 24)
+	if(monitor.time.hour >= 24)
 	{
-		tptr->hour %= 24;
+		monitor.time.hour %= 24;
 		dateIncrement();
 	}
 }
@@ -161,20 +161,20 @@ void timeIncrement(void)
  */
 void timePrint(void)
 {
-	time_struct *tptr = &time;
+	//sys_time *tptr = &time;
 	char time_string[32] = {0};
 	int i = 0;
 
-	time_string[i++] = (tptr->hour / 10) + '0';
-	time_string[i++] = (tptr->hour % 10) + '0';
+	time_string[i++] = (monitor.time.hour / 10) + '0';
+	time_string[i++] = (monitor.time.hour % 10) + '0';
 	time_string[i++] = ':';
-	time_string[i++] = (tptr->minute / 10) + '0';
-	time_string[i++] = (tptr->minute % 10) + '0';
+	time_string[i++] = (monitor.time.minute / 10) + '0';
+	time_string[i++] = (monitor.time.minute % 10) + '0';
 	time_string[i++] = ':';
-	time_string[i++] = (tptr->second / 10) + '0';
-	time_string[i++] = (tptr->second % 10) + '0';
+	time_string[i++] = (monitor.time.second / 10) + '0';
+	time_string[i++] = (monitor.time.second % 10) + '0';
 	time_string[i++] = '.';
-	time_string[i++] = (tptr->tenth % 10) + '0';
+	time_string[i++] = (monitor.time.tenth % 10) + '0';
 	time_string[i++] = '\0';
 
 	UART0_TXStr("Time is ");
@@ -207,9 +207,9 @@ unsigned int timeToTicks(int time_to_convert[NUM_TIME_ELEMS])
  * @param 	ticks:	Time in seconds/10
  * @returns time:	Time in time_struct with HH:MM:SS.T
  */
-time_struct ticksToTime(unsigned int ticks)
+sys_time ticksToTime(unsigned int ticks)
 {
-	time_struct time;
+	sys_time time;
 
 	time.tenth = ticks;
 

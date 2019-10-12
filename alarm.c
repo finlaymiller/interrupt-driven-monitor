@@ -7,15 +7,14 @@
  *
  *	Contains alarm command-related functions including set, clear, print, and
  *	others. More detail on the alarm function can be found in the design docs
- *	and in the program description at the beginning of main.c. Note that alarm
+ *	and in the program description at the beginning of monitor.c. Note that alarm
  *	data is stored in the global SysTick struct described in systick.c
  */
 
 #include "alarm.h"
 
-/* global SysTick and Time structs */
-extern systick_struct systick;
-extern time_struct time;
+/* global monitor struct */
+extern Monitor monitor;
 
 /*
  * This function is called when an alarm command is entered. If a time is
@@ -29,7 +28,7 @@ extern time_struct time;
  */
 int alarmHandler(char *arg)
 {
-	systick_struct *stptr = &systick;
+	//sys_tick *stptr = &systick;
 	char *token;
 	int alarm_to_set[NUM_TIME_ELEMS] = {0};
 	int number;
@@ -51,7 +50,7 @@ int alarmHandler(char *arg)
 
     	alarmSet(alarm_to_set);
     }
-    else if(stptr->enabled)	// if the alarm is enabled and no arguments are
+    else if(monitor.systick.enabled)	// if the alarm is enabled and no arguments are
     	alarmClear();		// provided, clear the alarm
     else UART0_TXStr("No alarm to clear");
 
@@ -66,13 +65,13 @@ int alarmHandler(char *arg)
  */
 static void alarmSet(int alarm_arr[NUM_TIME_ELEMS])
 {
-	systick_struct *stptr	= &systick;
+	//sys_tick *stptr	= &systick;
 
 	/* value to be counted-down is the user-provided time in
 	 * tenths-of-a-second
 	 */
-	stptr->cmp_val = timeToTicks(alarm_arr);
-	stptr->enabled = TRUE;
+	monitor.systick.cmp_val = timeToTicks(alarm_arr);
+	monitor.systick.enabled = TRUE;
 
 	alarmPrint();
 }
@@ -85,10 +84,10 @@ static void alarmSet(int alarm_arr[NUM_TIME_ELEMS])
  */
 static void alarmClear(void)
 {
-	systick_struct *stptr = &systick;
+	//sys_tick *stptr = &systick;
 
-	stptr->cmp_val = 0;
-	stptr->enabled = 0;
+	monitor.systick.cmp_val = 0;
+	monitor.systick.enabled = 0;
 
 	UART0_TXStr("\nAlarm cleared");	// print confirmation
 }
@@ -103,14 +102,14 @@ static void alarmClear(void)
  */
 void alarmCheck(void)
 {
-	systick_struct *stptr = &systick;
+	//sys_tick *stptr = &systick;
 
-	if(stptr->cmp_val > 0)		// underflow guard
-		stptr->cmp_val--;
+	if(monitor.systick.cmp_val > 0)		// underflow guard
+		monitor.systick.cmp_val--;
 
-	if((stptr->cmp_val) <= 0)	// decrement the timer and see if it equals 0
+	if((monitor.systick.cmp_val) <= 0)	// decrement the timer and see if it equals 0
 	{
-		stptr->enabled = 0;		// disable alarm
+		monitor.systick.enabled = 0;		// disable alarm
 		UART0_TXChar(BEL);		// play bell noise
 		UART0_TXStr("\nDING DING DING DING");	// alarms should be annoying!
 		UART0_TXChar('\n');
@@ -132,17 +131,17 @@ void alarmCheck(void)
  */
 static void alarmPrint(void)
 {
-	time_struct *tptr 		= &time;
-	systick_struct *stptr 	= &systick;
-	time_struct alarm 		= ticksToTime(stptr->cmp_val);
+	//sys_time *tptr 		= &time;
+	//sys_tick *stptr 	= &systick;
+	sys_time alarm 		= ticksToTime(monitor.systick.cmp_val);
 	char alarm_string[32] 	= {0};
 	unsigned int i = 0;
 
 	/* add alarm time to system time */
-	alarm.hour 		+= tptr->hour;
-	alarm.minute	+= tptr->minute;
-	alarm.second	+= tptr->second;
-	alarm.tenth 	+= tptr->tenth;
+	alarm.hour 		+= monitor.time.hour;
+	alarm.minute	+= monitor.time.minute;
+	alarm.second	+= monitor.time.second;
+	alarm.tenth 	+= monitor.time.tenth;
 
 	/* convert time to string */
 	alarm_string[i++] = (alarm.hour / 10) + '0';

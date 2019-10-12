@@ -9,15 +9,16 @@
 #define SYSTICK_H_
 
 /* required custom file links */
+#include "monitor.h"
 #include "uart.h"
 
 /* systick struct definition */
-typedef struct systick_struct
+typedef struct _systick
 {
 	unsigned int ticks;		// times ticked since last reset
 	unsigned int cmp_val;	// number of ticks to run for
 	unsigned int enabled;	// T/F whether or not the alarm is running
-} systick_struct;
+} sys_tick;
 
 // SysTick Registers
 // SysTick Control and Status Register (STCTRL)

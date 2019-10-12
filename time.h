@@ -16,6 +16,7 @@
 #include <ctype.h>
 
 /* required custom file links */
+#include "monitor.h"
 #include "command.h"
 
 /* define time-related properties */
@@ -27,13 +28,13 @@
 #define SECONDS_TO_TICKS(seconds) 	(seconds * 10)
 
 /* declare time struct */
-typedef struct time_struct
+typedef struct _time
 {
 	unsigned int hour;
 	unsigned int minute;
 	unsigned int second;
 	unsigned int tenth;
-} time_struct;
+} sys_time;
 
 /* function declarations */
 void timeInit(void);
@@ -42,6 +43,6 @@ static void timeSet(int time_str[NUM_TIME_ELEMS]);
 void timeIncrement(void);
 void timePrint(void);
 unsigned int timeToTicks(int time_str[NUM_TIME_ELEMS]);
-time_struct ticksToTime(unsigned int);
+sys_time ticksToTime(unsigned int);
 
 #endif /* TIME_H_ */

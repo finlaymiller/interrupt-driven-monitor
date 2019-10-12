@@ -10,6 +10,7 @@
 
 /* required custom file links */
 #include "command.h"
+#include "monitor.h"
 #include "my_atoi.h"
 #include "queue.h"
 
@@ -22,12 +23,12 @@
 #define IS_LEAP_YEAR(year) ((year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0)))
 
 /* date struct setup */
-typedef struct date_struct
+typedef struct _date
 {
     unsigned int day;
     unsigned int month;
     unsigned int year;
-} date_struct;
+} sys_date;
 
 /* function definitions */
 void dateInit(void);

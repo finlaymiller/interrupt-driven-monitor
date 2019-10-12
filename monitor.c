@@ -1,5 +1,5 @@
 /*
- * 	main.c
+ * 	monitor.c
  *
  *  Created on:	Sep 19, 2019
  * Modified on:	Oct  5, 2019
@@ -64,19 +64,11 @@
  *	two space-separated strings will be analyzed.
  */
 
-/* required standard libraries */
-#include <stdlib.h>
-#include <stdio.h>
-
-/* required custom files */
-#include "command.h"
-#include "date.h"
-#include "time.h"
-#include "queue.h"
-#include "uart.h"
+#include "monitor.h"
 
 /* global flag that is set when a character is received */
 extern volatile unsigned int got_data;
+Monitor monitor;
 
 void main(void)
 {

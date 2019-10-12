@@ -15,7 +15,7 @@
 #include "date.h"
 
 /* globals */
-static date_struct date;				// global date struct
+extern Monitor monitor;
 const char *month_list[NUM_MONTHS] =	// list of supported months
 {
  	 "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
@@ -100,11 +100,9 @@ int dateCheck(int day, char *month, int year)
  */
 void dateInit(void)
 {
-	date_struct *dptr = &date;
-
-	dptr->day 	= 1;
-	dptr->month	= 9;
-	dptr->year 	= 2019;
+	monitor.date.day 	= 1;
+	monitor.date.month	= 9;
+	monitor.date.year 	= 2019;
 }
 
 /*
@@ -115,7 +113,7 @@ void dateInit(void)
  */
 static int dateSet(char **date_str)
 {
-	date_struct *dptr = &date;
+	//sys_date *dptr = &date;
 	char month[MONTH_LEN + 1];	// +1 to account for '\0'
 	unsigned int date_d, date_m, date_y, day, year;
 	unsigned int i = 0;
@@ -148,9 +146,9 @@ static int dateSet(char **date_str)
 		}
 	}
 
-	dptr->day 	= date_d;
-	dptr->month	= date_m;
-	dptr->year 	= date_y;
+	monitor.date.day 	= date_d;
+	monitor.date.month	= date_m;
+	monitor.date.year 	= date_y;
 
 	return TRUE;
 }
@@ -163,24 +161,24 @@ static int dateSet(char **date_str)
  */
 void dateIncrement(void)
 {
-	date_struct *dptr = &date;
-	unsigned int leap_year = IS_LEAP_YEAR(dptr->year);
+	//sys_date *dptr = &date;
+	unsigned int leap_year = IS_LEAP_YEAR(monitor.date.year);
 
-	dptr->day++;
+	monitor.date.day++;
 
-	if(dptr->day > day_list[leap_year][dptr->month])
+	if(monitor.date.day > day_list[leap_year][monitor.date.month])
 	{
-		dptr->day = 1;
-		dptr->month++;
+		monitor.date.day = 1;
+		monitor.date.month++;
 	}
-	if(dptr->month >= 12)
+	if(monitor.date.month >= 12)
 	{
-		dptr->month = 0;
-		dptr->year++;
+		monitor.date.month = 0;
+		monitor.date.year++;
 	}
-	if(dptr->year >= 10000)
+	if(monitor.date.year >= 10000)
 	{
-		dptr->year = 0;
+		monitor.date.year = 0;
 	}
 }
 
@@ -195,18 +193,18 @@ void dateIncrement(void)
  */
 static void datePrint(void)
 {
-	date_struct *dptr = &date;
+	//sys_date *dptr = &date;
 	char date_string[32] = {0};
-	int year = dptr->year;
+	int year = monitor.date.year;
 	int div = 1000;
 	unsigned int i = 0;
 
-	date_string[i++] = (dptr->day / 10) + '0';
-	date_string[i++] = (dptr->day % 10) + '0';
+	date_string[i++] = (monitor.date.day / 10) + '0';
+	date_string[i++] = (monitor.date.day % 10) + '0';
 	date_string[i++] = '-';
-	date_string[i++] = month_list[dptr->month][0];
-	date_string[i++] = month_list[dptr->month][1];
-	date_string[i++] = month_list[dptr->month][2];
+	date_string[i++] = month_list[monitor.date.month][0];
+	date_string[i++] = month_list[monitor.date.month][1];
+	date_string[i++] = month_list[monitor.date.month][2];
 	date_string[i++] = '-';
 	date_string[i++] = getNumDigit(&year, &div) + '0';
 	date_string[i++] = getNumDigit(&year, &div) + '0';
